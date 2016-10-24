@@ -1,17 +1,13 @@
 
-function verticallyCenter(innerId, containerId)  {
-    var container = document.getElementById(containerId);
-    var inner = document.getElementById(innerId);
-
-    var inHeight = inner.offsetHeight;
-    var conHeight = container.offsetHeight;
-
-    inner.style.marginTop = ((conHeight-inHeight)/2)+'px';
+function verticallyCenter(inner, container)  {
+    var inHeight = inner.outerHeight();
+    var conHeight = container.outerHeight();
+    inner.css('margin-top', ((conHeight-inHeight)/2)+'px');
 }
 
-window.onresize = function () {
-    verticallyCenter("memorial", "memorial-container");
-};
+$(window).on('resize', function () {
+    verticallyCenter($("#memorial"), $("#memorial-container"));
+});
 
 function fade(id, start, end, time, callback) {
     var increment = (end - start) / (100 * time);
@@ -40,21 +36,22 @@ function fadeOut(id, length, callback) {
 }
 
 function updateMemorial(victim) {
-    var name = document.getElementById("name");
-    var years = document.getElementById("years");
-    var event = document.getElementById("event");
-    var facts = document.getElementById("facts");
+    var name = $("#name");
+    var years = $("#years");
+    var event = $("#event");
+    var facts = $("#facts");
 
-    name.innerHTML = victim.name || "";
+    name.html(victim.name || "");
     if (victim.birthYear || victim.deathYear) {
-        years.innerHTML = (victim.birthYear || "?") +
-                 " - " +  (victim.deathYear || "?");
+        years.html((victim.birthYear || "?") + " - " +
+                   (victim.deathYear || "?"));
     } else {
-        years.innerHTML = "";
+        years.html("")
     }
-    event.innerHTML = victim.event || "";
-    facts.innerHTML = victim.details || "";
-    verticallyCenter("memorial", "memorial-container");
+    event.html(victim.event || "");
+    facts.html(victim.details || "");
+
+    verticallyCenter($("#memorial"), $("#memorial-container"));
 }
 
 var testContent = [
@@ -89,6 +86,9 @@ function updateMemorialLoop() {
         return console.error("Could not retrieve more names");
     }
     updateMemorial(nextVictim);
+
+    // TODO: to stay synchronized, wait time should reflect how long info is visible,
+    //    not how long between victims
     var waitTime;  // To stay synchronized
     if (nextVictim.scheduledTime) {
         waitTime = nextVictim.scheduledTime.getTime() - new Date().getTime()
@@ -97,14 +97,16 @@ function updateMemorialLoop() {
     }
     setTimeout(function () {
         console.log("Fading in");
-        fadeIn("memorial", 1, function () {
+        $("#memorial").fadeTo(1 * 1000, 1, function () {
             console.log("Faded in");
             setTimeout(function () {
                 console.log("Fading out");
-                fadeOut("memorial", 1, updateMemorialLoop);
-            }, 5 * 1000);
+                $("#memorial").fadeTo(1 * 1000, 0, updateMemorialLoop);
+            }, 3 * 1000);
         });
     }, waitTime);
 }
 
-updateMemorialLoop();
+$(document).ready(function () {
+    updateMemorialLoop();
+});
