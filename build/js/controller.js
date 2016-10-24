@@ -1,59 +1,28 @@
-
-function verticallyCenter(inner, container)  {
+function verticallyCenter(inner, container) {
     var inHeight = inner.outerHeight();
     var conHeight = container.outerHeight();
-    inner.css('margin-top', ((conHeight-inHeight)/2)+'px');
+    inner.css('margin-top', ((conHeight - inHeight) / 2) + 'px');
 }
-
 $(window).on('resize', function () {
     verticallyCenter($("#memorial"), $("#memorial-container"));
 });
-
-function fade(id, start, end, time, callback) {
-    var increment = (end - start) / (100 * time);
-    var element = document.getElementById("memorial")
-    var op = start;  // initial opacity
-    var timer = setInterval(function () {
-        if ((op >= end && end >= start) ||
-            (op <= end && end <= start)) {
-            element.style.opacity = end;
-            clearInterval(timer);
-            if (callback) {
-                callback();
-            }
-        }
-        element.style.opacity = op;
-        element.style.filter = 'alpha(opacity=' + op * 100 + ")";
-        op += increment;
-    }, 10);  // 100 updates per second
-}
-
-function fadeIn(id, length, callback) {
-    fade(id, 0, 1, length, callback);
-}
-function fadeOut(id, length, callback) {
-    fade(id, 1, 0, length, callback);
-}
-
 function updateMemorial(victim) {
     var name = $("#name");
     var years = $("#years");
     var event = $("#event");
     var facts = $("#facts");
-
     name.html(victim.name || "");
     if (victim.birthYear || victim.deathYear) {
         years.html((victim.birthYear || "?") + " - " +
-                   (victim.deathYear || "?"));
-    } else {
-        years.html("")
+            (victim.deathYear || "?"));
+    }
+    else {
+        years.html("");
     }
     event.html(victim.event || "");
     facts.html(victim.details || "");
-
     verticallyCenter($("#memorial"), $("#memorial-container"));
 }
-
 var testContent = [
     {
         name: "Anne Frank",
@@ -73,12 +42,10 @@ var testContent = [
         details: "We known very few names of the victims of the Armenian genocide."
     }
 ];
-
 var victimList = new Queue();
 for (var i = 0; i < testContent.length; ++i) {
-    victimList.enqueue(testContent[i])
+    victimList.enqueue(testContent[i]);
 }
-
 function updateMemorialLoop() {
     console.log("Starting loop");
     var nextVictim = victimList.dequeue();
@@ -86,13 +53,13 @@ function updateMemorialLoop() {
         return console.error("Could not retrieve more names");
     }
     updateMemorial(nextVictim);
-
     // TODO: to stay synchronized, wait time should reflect how long info is visible,
     //    not how long between victims
-    var waitTime;  // To stay synchronized
+    var waitTime; // To stay synchronized
     if (nextVictim.scheduledTime) {
-        waitTime = nextVictim.scheduledTime.getTime() - new Date().getTime()
-    } else {
+        waitTime = nextVictim.scheduledTime.getTime() - new Date().getTime();
+    }
+    else {
         waitTime = 0;
     }
     setTimeout(function () {
@@ -106,7 +73,6 @@ function updateMemorialLoop() {
         });
     }, waitTime);
 }
-
 $(document).ready(function () {
     updateMemorialLoop();
 });

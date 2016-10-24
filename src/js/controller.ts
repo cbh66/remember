@@ -1,5 +1,4 @@
-
-function verticallyCenter(inner, container)  {
+function verticallyCenter(inner: JQuery, container: JQuery): void  {
     var inHeight = inner.outerHeight();
     var conHeight = container.outerHeight();
     inner.css('margin-top', ((conHeight-inHeight)/2)+'px');
@@ -9,33 +8,7 @@ $(window).on('resize', function () {
     verticallyCenter($("#memorial"), $("#memorial-container"));
 });
 
-function fade(id, start, end, time, callback) {
-    var increment = (end - start) / (100 * time);
-    var element = document.getElementById("memorial")
-    var op = start;  // initial opacity
-    var timer = setInterval(function () {
-        if ((op >= end && end >= start) ||
-            (op <= end && end <= start)) {
-            element.style.opacity = end;
-            clearInterval(timer);
-            if (callback) {
-                callback();
-            }
-        }
-        element.style.opacity = op;
-        element.style.filter = 'alpha(opacity=' + op * 100 + ")";
-        op += increment;
-    }, 10);  // 100 updates per second
-}
-
-function fadeIn(id, length, callback) {
-    fade(id, 0, 1, length, callback);
-}
-function fadeOut(id, length, callback) {
-    fade(id, 1, 0, length, callback);
-}
-
-function updateMemorial(victim) {
+function updateMemorial(victim): void {
     var name = $("#name");
     var years = $("#years");
     var event = $("#event");
@@ -74,12 +47,12 @@ var testContent = [
     }
 ];
 
-var victimList = new Queue();
+var victimList: Queue<any> = new Queue<any>();
 for (var i = 0; i < testContent.length; ++i) {
     victimList.enqueue(testContent[i])
 }
 
-function updateMemorialLoop() {
+function updateMemorialLoop(): void {
     console.log("Starting loop");
     var nextVictim = victimList.dequeue();
     if (!nextVictim) {
