@@ -15,6 +15,7 @@ div#memorial-container {
 }
 
 div#memorial {
+    opacity: 0;
     margin: auto;
     width: 50%;
     text-align: center;
