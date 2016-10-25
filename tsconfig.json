@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "outDir": "../../build/js",
-        "target": "es5",
+        "outDir": "./build/js",
+        "target": "es3",
         "allowJs": true,
 	"removeComments": true,
 	"noImplicitAny": true,
@@ -10,6 +10,6 @@
 	"pretty": true
     },
     "include": [
-        "./**/*"
+        "./src/js/**/*"
     ]
 }
