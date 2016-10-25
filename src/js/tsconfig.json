@@ -1,8 +1,13 @@
 {
     "compilerOptions": {
         "outDir": "../../build/js",
-        "allowJs": false,
-        "target": "es5"
+        "target": "es5",
+        "allowJs": true,
+	"removeComments": true,
+	"noImplicitAny": true,
+	"noUnusedLocals": true,
+	"noEmitOnError": true,
+	"pretty": true
     },
     "include": [
         "./**/*"

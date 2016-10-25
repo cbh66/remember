@@ -2,7 +2,7 @@ interface Victim {
     name: string;
     scheduledTime: Date;
     event: string;
-    birthYeah?: number;
+    birthYear?: number;
     deathYear?: number;
     details?: string;
 }

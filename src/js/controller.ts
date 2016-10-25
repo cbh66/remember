@@ -1,3 +1,6 @@
+/// <reference path="lib/jquery.d.ts" />
+/// <reference path="Queue.ts" />
+/// <reference path="victim.d.ts" />
 function verticallyCenter(inner: JQuery, container: JQuery): void  {
     var inHeight = inner.outerHeight();
     var conHeight = container.outerHeight();
@@ -8,7 +11,7 @@ $(window).on('resize', function () {
     verticallyCenter($("#memorial"), $("#memorial-container"));
 });
 
-function updateMemorial(victim): void {
+function updateMemorial(victim: Victim): void {
     var name = $("#name");
     var years = $("#years");
     var event = $("#event");
@@ -62,7 +65,7 @@ function updateMemorialLoop(): void {
 
     // TODO: to stay synchronized, wait time should reflect how long info is visible,
     //    not how long between victims
-    var waitTime;  // To stay synchronized
+    var waitTime: number;  // To stay synchronized
     if (nextVictim.scheduledTime) {
         waitTime = nextVictim.scheduledTime.getTime() - new Date().getTime()
     } else {
