@@ -30,23 +30,61 @@ function updateMemorial(victim: Victim): void {
     verticallyCenter($("#memorial"), $("#memorial-container"));
 }
 
-var testContent = [
+function addSeconds(date: Date, seconds: number): Date {
+    return new Date(date.getTime() + seconds*1000);
+}
+
+var testContent : Array<Victim> = [
     {
-        name: "Anne Frank",
-        birthYear: 1929,
-        deathYear: 1945,
-        event: "Holocaust",
-        details: "Favorite color: green"
+        name: "Aaron Burr",
+        event: "Natural Causes",
+        birthYear: 1756,
+        deathYear: 1836,
+        details: "Was a butt",
+        scheduledTime: addSeconds(new Date(), 1)
     },
     {
-        name: "Mary Karungi",
-        deathYear: 1994,
-        event: "Rwandan Genocide"
+        name: "Thomas Jefferson",
+        event: "Fiftieth Anniversary of US",
+        birthYear: 1743,
+        deathYear: 1826,
+        details: "Slaveowner and father of US",
+        scheduledTime: addSeconds(new Date(), 6)
     },
     {
-        name: "Unknown",
-        event: "Armenian Genocide",
-        details: "We known very few names of the victims of the Armenian genocide."
+        name: "Button Gwinnett",
+        event: "Duel",
+        deathYear: 1777,
+        scheduledTime: addSeconds(new Date(), 11)
+    },
+    {
+        name: "John Hancock",
+        birthYear: 1737,
+        deathYear: 1793,
+        event: "Natural causes",
+        scheduledTime: addSeconds(new Date(), 16)
+    },
+    {
+        name: "Ben Franklin",
+        deathYear: 1790,
+        event: "Natural causes",
+        scheduledTime: addSeconds(new Date(), 21),
+        details: "Loved France; polymath"
+    },
+    {
+        name: "Elbridge Gerry",
+        birthYear: 1744,
+        deathYear: 1814,
+        event: "Died in Office",
+        scheduledTime: addSeconds(new Date(), 26),
+        details: "Only founding father buried in Washington DC"
+    },
+    {
+        name: "Josiah Bartlett",
+        birthYear: 1729,
+        deathYear: 1795,
+        event: "Natural causes",
+        scheduledTime: addSeconds(new Date(), 31)
     }
 ];
 
