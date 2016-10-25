@@ -2,8 +2,8 @@
 /// <reference path="Queue.ts" />
 /// <reference path="victim.d.ts" />
 function verticallyCenter(inner: JQuery, container: JQuery): void  {
-    var inHeight = inner.outerHeight();
-    var conHeight = container.outerHeight();
+    let inHeight = inner.outerHeight();
+    let conHeight = container.outerHeight();
     inner.css('margin-top', ((conHeight-inHeight)/2)+'px');
 }
 
@@ -12,10 +12,10 @@ $(window).on('resize', function () {
 });
 
 function updateMemorial(victim: Victim): void {
-    var name = $("#name");
-    var years = $("#years");
-    var event = $("#event");
-    var facts = $("#facts");
+    let name = $("#name");
+    let years = $("#years");
+    let event = $("#event");
+    let facts = $("#facts");
 
     name.html(victim.name || "");
     if (victim.birthYear || victim.deathYear) {
@@ -88,26 +88,24 @@ var testContent : Array<Victim> = [
     }
 ];
 
-var victimList: Queue<any> = new Queue<any>();
-for (var i = 0; i < testContent.length; ++i) {
+let victimList: Queue<Victim> = new Queue<Victim>();
+for (let i = 0; i < testContent.length; ++i) {
     victimList.enqueue(testContent[i])
 }
 
 function updateMemorialLoop(): void {
     console.log("Starting loop");
-    var nextVictim = victimList.dequeue();
-    if (!nextVictim) {
+    let currentVictim: Victim = victimList.dequeue();
+    if (!currentVictim) {
         return console.error("Could not retrieve more names");
     }
-    updateMemorial(nextVictim);
+    updateMemorial(currentVictim);
 
     // TODO: to stay synchronized, wait time should reflect how long info is visible,
     //    not how long between victims
-    var waitTime: number;  // To stay synchronized
-    if (nextVictim.scheduledTime) {
-        waitTime = nextVictim.scheduledTime.getTime() - new Date().getTime()
-    } else {
-        waitTime = 0;
+    let waitTime: number = 0;  // To stay synchronized
+    if (currentVictim.scheduledTime) {
+        waitTime = currentVictim.scheduledTime.getTime() - new Date().getTime()
     }
     setTimeout(function () {
         console.log("Fading in");
