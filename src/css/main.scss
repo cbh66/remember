@@ -12,29 +12,29 @@ div#memorial-container {
     top: 0;
     left: 0;
     margin: 0;
-}
 
-div#memorial {
-    opacity: 0;
-    margin: auto;
-    width: 50%;
-    text-align: center;
-    vertical-align: middle;
-    display: block;
-}
+    #memorial {
+        opacity: 0;
+        margin: auto;
+        width: 50%;
+        text-align: center;
+        vertical-align: middle;
+        display: block;
 
-div#memorial div#name {
-    font-size: 500%;
-}
+        #name {
+            font-size: 500%;
+        }
 
-div#memorial div#years {
-    font-size: 300%;
-}
+        #years {
+            font-size: 300%;
+        }
 
-div#memorial div#event {
-    font-size: 100%;
-}
+        #event {
+            font-size: 100%;
+        }
 
-div#memorial div#facts {
-    font-size: 150%;
+        #facts {
+            font-size: 150%;
+        }
+    }
 }
