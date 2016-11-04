@@ -1,8 +1,18 @@
+$small-screen-width: 800px;
+
 body {
     background: black;
     color: white;
     font-family: Arial, Helvetica, sans-serif;
     height: 100%;
+            
+    @media (orientation: portrait) and (max-width: 500px) {
+        font-size: 200%;
+    }
+    
+    @media (orientation: portrait) and (max-width: 1000px) {
+        font-size: 150%;
+    }
 }
 
 div#memorial-container {
@@ -16,10 +26,16 @@ div#memorial-container {
     #memorial {
         opacity: 0;
         margin: auto;
-        width: 50%;
         text-align: center;
         vertical-align: middle;
         display: block;
+
+        @media (orientation: landscape) {
+            width: 50%;
+        }
+        @media (orientation: portrait) {
+            width: 100%;
+        }
 
         #name {
             font-size: 500%;
