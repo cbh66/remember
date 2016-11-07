@@ -1,0 +1,25 @@
+{
+  "name": "remember",
+  "version": "1.0.0",
+  "description": "An online memorial page for victims of genocide.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cbh66/remember.git"
+  },
+  "keywords": [
+    "genocide",
+    "memorial",
+    "together",
+    "remember"
+  ],
+  "author": "Colin Hamilton",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cbh66/remember/issues"
+  },
+  "homepage": "https://github.com/cbh66/remember"
+}
