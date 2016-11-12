@@ -15,7 +15,7 @@ Typescript annotations added by Colin Hamilton
 /* Creates a new queue. A queue is a first-in-first-out (FIFO) data structure -
  * items are added to the end of the queue and removed from the front.
  */
-class Queue<T> {
+export default class Queue<T> {
 
   // initialise the queue and offset
   protected queue: T[] = [];

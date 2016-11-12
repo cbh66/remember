@@ -1,6 +1,8 @@
 /// <reference path="lib/jquery.d.ts" />
 /// <reference path="Queue.ts" />
 /// <reference path="victim.d.ts" />
+import Queue from "./Queue";
+
 function verticallyCenter(inner: JQuery, container: JQuery): void  {
     let inHeight = inner.outerHeight();
     let conHeight = container.outerHeight();
