@@ -19,13 +19,21 @@ function forManyNumbersUpTo(max: number,
     }
 }
 
+/**
+ * Makes and returns a queue containing every integer between `start` and
+ *   `end`.  Successive numbers in the queue differ by 1, and are either all
+ *   increasing (if start < end) or all decreasing (if start > end).
+ * @param  {number}        start The first value in the queue
+ * @param  {number}        end   The last value in the queue
+ * @return {Queue<number>}
+ */
 function makeQueueBetween(start: number, end: number): Queue<number> {
     let returnQueue = new Queue<number>();
     if (start <= end) {
         for (let i = start; i <= end; ++i) {
             returnQueue.enqueue(i);
         }
-    } else {  //
+    } else {
         for (let i = start; i >= end; --i) {
             returnQueue.enqueue(i);
         }
