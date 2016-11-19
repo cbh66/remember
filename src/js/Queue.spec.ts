@@ -12,15 +12,15 @@ describe('Queue', function () {
         });
 
         it('should not be empty after enqueuing', function () {
-            let testQueue: Queue<number> = new Queue<number>();
+            let testQueue = new Queue<number>();
             testQueue.enqueue(0);
             expect(testQueue.isEmpty()).to.not.be.true;
         });
 
         it('should be empty after dequeueing all enqueued items', function () {
-            let testQueue: Queue<number> = new Queue<number>();
-            let max: number = 1;
-            let increment: number = 1;
+            let testQueue = new Queue<number>();
+            let max = 1;
+            let increment = 1;
             while (max < 500) {
                 for (let i = 0; i < max; ++i) {
                     testQueue.enqueue(i);
@@ -36,6 +36,7 @@ describe('Queue', function () {
 
     describe('#dequeue', function () {
         it('should output undefined for empty queue');
+
         it('should always output the first item that went in');
         it('should dequeue the same items that went in');
     });
