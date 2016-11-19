@@ -5,7 +5,7 @@
   "main": "index.html",
   "scripts": {
     "build": "webpack",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --opts mocha.opts && rm -rf test"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,12 @@
   },
   "homepage": "https://github.com/cbh66/remember",
   "devDependencies": {
+    "@types/chai": "^3.4.34",
+    "@types/mocha": "^2.2.33",
+    "chai": "^3.5.0",
+    "mocha": "^3.1.2",
     "ts-loader": "^1.0.0",
+    "ts-node": "^1.7.0",
     "typescript": "^2.0.7",
     "webpack": "^1.13.3"
   }
