@@ -19,10 +19,16 @@ function forManyNumbersUpTo(max: number,
     }
 }
 
-function makeQueueBetween(min: number, max: number): Queue<number> {
+function makeQueueBetween(start: number, end: number): Queue<number> {
     let returnQueue = new Queue<number>();
-    for (let i = min; i <= max; ++i) {
-        returnQueue.enqueue(i);
+    if (start <= end) {
+        for (let i = start; i <= end; ++i) {
+            returnQueue.enqueue(i);
+        }
+    } else {  //
+        for (let i = start; i >= end; --i) {
+            returnQueue.enqueue(i);
+        }
     }
     return returnQueue;
 }
@@ -116,8 +122,46 @@ describe('Queue', function () {
     });
 
     describe('#peek', function () {
-        it('should output the same item after multiple calls');
-        it('should leave the length of the queue unchanged');
-        it('should output the same item that dequeue would remove');
+        it('should output the same item that dequeue would remove', function () {
+            expect(new Queue().peek()).to.equal(new Queue().dequeue());
+            forManyNumbersUpTo(500, function (max) {
+                let testQueue = makeQueueBetween(1, max);
+                for (let i = 0; i < max; ++i) {
+                    expect(testQueue.peek()).to.equal(testQueue.dequeue());
+                }
+            })
+        });
+
+        it('should output the same item after multiple calls', function () {
+            let numTries = 3;
+            function verifyPeekValue(queue: Queue<any>): void {
+                let firstResult = queue.peek();
+                for (let i = 0; i < numTries; ++i) {
+                    expect(queue.peek()).to.equal(firstResult);
+                }
+            }
+
+            verifyPeekValue(new Queue());
+            let testQueue = makeQueueBetween(1, 1000);
+            for (let i = 0; i < 1000; ++i) {
+                verifyPeekValue(testQueue);
+                testQueue.dequeue();
+            }
+        });
+
+        it('should leave the length of the queue unchanged', function () {
+            function verifyLengthAfterPeek(queue: Queue<any>) {
+                let lengthBefore = queue.getLength();
+                queue.peek();
+                expect(queue.getLength()).to.equal(lengthBefore);
+            }
+
+            verifyLengthAfterPeek(new Queue());
+            let testQueue = makeQueueBetween(1, 1000);
+            for (let i = 0; i < 1000; ++i) {
+                verifyLengthAfterPeek(testQueue);
+                testQueue.dequeue();
+            }
+        });
     });
 });
