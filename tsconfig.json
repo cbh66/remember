@@ -7,7 +7,11 @@
 	"noImplicitAny": true,
 	"noUnusedLocals": true,
 	"noEmitOnError": true,
-	"pretty": true
+	"pretty": true,
+	"types": [
+	    "mocha",
+	    "chai"
+	]
     },
     "include": [
         "./src/js/**/*"
