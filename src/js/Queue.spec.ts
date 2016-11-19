@@ -19,32 +19,37 @@ function forManyNumbersUpTo(max: number,
     }
 }
 
+function makeQueueBetween(min: number, max: number): Queue<number> {
+    let returnQueue = new Queue<number>();
+    for (let i = min; i <= max; ++i) {
+        returnQueue.enqueue(i);
+    }
+    return returnQueue;
+}
+
 describe('Queue', function () {
     // No good test for enqueueing; most of these rely on it working.
     // But if enqueueing is broken, it would likely break these tests too.
 
     describe('#isEmpty', function () {
         it('should start off empty', function () {
-            expect(new Queue().isEmpty()).to.be.true;
+            expect(new Queue().isEmpty(), 'isEmpty').to.be.true;
         });
 
         it('should not be empty after enqueuing', function () {
             let testQueue = new Queue<number>();
             testQueue.enqueue(0);
-            expect(testQueue.isEmpty()).to.be.false;
+            expect(testQueue.isEmpty(), 'isEmpty').to.be.false;
         });
 
         it('should be empty after dequeueing all enqueued items', function () {
-            let testQueue = new Queue<number>();
             forManyNumbersUpTo(500, function (max: number) {
-                for (let i = 0; i < max; ++i) {
-                    testQueue.enqueue(i);
-                }
-                for (let i = 0; i < max; ++i) {
-                    expect(testQueue.isEmpty()).to.be.false;
+                let testQueue = makeQueueBetween(0, max);
+                for (let i = 0; i <= max; ++i) {
+                    expect(testQueue.isEmpty(), 'isEmpty').to.be.false;
                     testQueue.dequeue();
                 }
-                expect(testQueue.isEmpty()).to.be.true;
+                expect(testQueue.isEmpty(), 'isEmpty').to.be.true;
             });
         });
     });
@@ -56,32 +61,23 @@ describe('Queue', function () {
 
         it('should always output the first item that went in', function () {
             forManyNumbersUpTo(500, function (max: number) {
-                let testQueue = new Queue<number>();
-                for (let i = 0; i < max; ++i) {
-                    testQueue.enqueue(i);
-                }
+                let testQueue = makeQueueBetween(0, max);
                 expect(testQueue.dequeue(), 'first item').to.equal(0);
             });
         });
 
         it('should permanently remove items when dequeued', function () {
             forManyNumbersUpTo(500, function (max: number) {
-                let testQueue = new Queue<number>();
-                for (let i = 0; i < max; ++i) {
-                    testQueue.enqueue(i);
-                }
+                let testQueue = makeQueueBetween(0, max);
                 testQueue.dequeue();
                 expect(testQueue.dequeue(), 'second item').to.not.equal(0);
             });
         });
 
         it('should dequeue the same items that went in', function () {
-            let testQueue = new Queue<number>();
             forManyNumbersUpTo(500, function (max: number) {
-                for (let i = 0; i < max; ++i) {
-                    testQueue.enqueue(i);
-                }
-                for (let i = 0; i < max; ++i) {
+                let testQueue = makeQueueBetween(0, max);
+                for (let i = 0; i <= max; ++i) {
                     expect(testQueue.dequeue()).to.equal(i);
                 }
                 expect(testQueue.dequeue()).to.be.undefined;
@@ -91,13 +87,13 @@ describe('Queue', function () {
 
     describe('#getLength', function () {
         it('should begin as zero', function () {
-            expect(new Queue().getLength()).to.equal(0);
+            expect(new Queue().getLength(), 'length').to.equal(0);
         });
 
         it('should not change after a dequeue on an empty queue', function () {
             let testQueue = new Queue();
             testQueue.dequeue();
-            expect(testQueue.getLength()).to.equal(0);
+            expect(testQueue.getLength(), 'length').to.equal(0);
         });
 
         it('should increase with each enqueue', function () {
@@ -110,14 +106,11 @@ describe('Queue', function () {
         });
 
         it('should decrease with each dequeue', function () {
-            let testQueue = new Queue<number>();
             let max = 1000;
-            for (let i = 0; i < max; ++i) {
-                testQueue.enqueue(i);
-            }
+            let testQueue = makeQueueBetween(1, max);
             for (let i = max; i > 0; --i) {
                 testQueue.dequeue();
-                expect(testQueue.getLength()).to.equal(i - 1);
+                expect(testQueue.getLength(), 'length').to.equal(i - 1);
             }
         });
     });
