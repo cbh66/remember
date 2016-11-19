@@ -89,11 +89,37 @@ describe('Queue', function () {
         });
     });
 
-    describe('#length', function () {
-        it('should begin as zero');
-        it('should not change after a dequeue on an empty queue');
-        it('should increase with each enqueue');
-        it('should decrease with each dequeue');
+    describe('#getLength', function () {
+        it('should begin as zero', function () {
+            expect(new Queue().getLength()).to.equal(0);
+        });
+
+        it('should not change after a dequeue on an empty queue', function () {
+            let testQueue = new Queue();
+            testQueue.dequeue();
+            expect(testQueue.getLength()).to.equal(0);
+        });
+
+        it('should increase with each enqueue', function () {
+            let testQueue = new Queue<number>();
+            let max = 1000;
+            for (let i = 1; i <= max; ++i) {
+                testQueue.enqueue(i);
+                expect(testQueue.getLength()).to.equal(i);
+            }
+        });
+
+        it('should decrease with each dequeue', function () {
+            let testQueue = new Queue<number>();
+            let max = 1000;
+            for (let i = 0; i < max; ++i) {
+                testQueue.enqueue(i);
+            }
+            for (let i = max; i > 0; --i) {
+                testQueue.dequeue();
+                expect(testQueue.getLength()).to.equal(i - 1);
+            }
+        });
     });
 
     describe('#peek', function () {
