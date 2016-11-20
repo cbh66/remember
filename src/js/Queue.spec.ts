@@ -51,6 +51,14 @@ describe('Queue', function () {
         });
     });
 
+    var largeQueue: Queue<number>;  // to be used later for dequeue test
+    describe('#enqueue', function () {
+        it('should not crash when enqueueing 10 million elements', function () {
+            largeQueue = makeQueueBetween(1, 10*1000*1000);
+            expect(largeQueue).to.be.ok;
+        });
+    });
+
     describe('#isEmpty', function () {
         it('should start off empty', function () {
             expect(new Queue().isEmpty(), 'isEmpty').to.be.true;
@@ -102,6 +110,13 @@ describe('Queue', function () {
                 }
                 expect(testQueue.dequeue()).to.be.undefined;
             });
+        });
+
+        it('should empty a queue of 10 million elements', function () {
+            for (let i = 0; i < 10*1000*1000; ++i) {
+                largeQueue.dequeue();
+            }
+            expect(largeQueue.isEmpty()).to.be.true;
         });
     });
 
