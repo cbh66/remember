@@ -1,4 +1,4 @@
-import Queue from './Queue'
+import Queue from './Queue';
 import * as chai from 'chai';
 var expect = chai.expect;
 
@@ -44,6 +44,12 @@ function makeQueueBetween(start: number, end: number): Queue<number> {
 describe('Queue', function () {
     // No good test for enqueueing; most of these rely on it working.
     // But if enqueueing is broken, it would likely break these tests too.
+
+    describe('constructor', function () {
+        it('should initialize properly', function () {
+            expect(new Queue()).to.be.an.instanceof(Queue);
+        });
+    });
 
     describe('#isEmpty', function () {
         it('should start off empty', function () {
