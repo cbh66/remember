@@ -32,7 +32,7 @@ describe('TimedQueue', function () {
                     spy();
                 }
             });
-            testQueue.addLatest(1, millisecondsFrom(-1, new Date()));
+            testQueue.addLatest(-1, millisecondsFrom(-1, new Date()));
             expect(spy.calledOnce).to.be.true;
         });
 
@@ -43,12 +43,21 @@ describe('TimedQueue', function () {
                     spy();
                 }
             });
-            testQueue.addLatest(1, millisecondsFrom(5, new Date()));
+            testQueue.addLatest(5, millisecondsFrom(5, new Date()));
 
             clock.tick(4);
             expect(spy.called).to.be.false;
             clock.tick(1);
             expect(spy.calledOnce).to.be.true;
+        });
+    });
+
+    describe('#addLatest', function () {
+        it('should be an error to add things out of order', function () {
+            let testQueue = new TimedQueue<number>();
+            testQueue.addLatest(10, millisecondsFrom(10, new Date()));
+            let outOfOrderAddition = testQueue.addLatest.bind(testQueue, 10, new Date());
+            expect(outOfOrderAddition).to
         });
     });
 });
