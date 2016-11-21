@@ -11,15 +11,17 @@ import Queue from './Queue';
 //   that's the signal to fade out then present the next one on time.
 //   This means that no name will fade out until another one is ready.
 
-class OutOfOrderDateError extends RangeError {}
 
 
-interface TimedQueueOptions<T> {  // fuck this
+
+interface TimedQueueOptions<T> {
     callback?: (object: T) => any;
     updateFrequency?: number;      // In milliseconds, I would think
 }
 
 export default class TimedQueue<T> {
+    static OutOfOrderDateError = class extends RangeError {}
+
     protected queue = new Queue<[Date, T]>();
     protected latestTime: Date = null;
     protected callback: (object: T) => any;
@@ -37,7 +39,7 @@ export default class TimedQueue<T> {
 
     public addLatest(object: T, scheduledTime: Date): void {
         if (this.latestTime && scheduledTime < this.latestTime) {
-            throw new OutOfOrderDateError('Date ' + scheduledTime +
+            throw new TimedQueue.OutOfOrderDateError('Date ' + scheduledTime +
                     ' is earlier than prior added date ' + this.latestTime);
         }
         this.queue.enqueue([scheduledTime, object]);
