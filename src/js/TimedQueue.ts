@@ -48,7 +48,8 @@ class TimedQueue<T> {
     private watch(): void {
         let nextPair = this.queue.peek();
         if (!nextPair) return;
-        let waitTime = nextPair[0].getTime() - new Date().getTime();
+        let [nextTime, ] = nextPair;
+        let waitTime = nextTime.getTime() - new Date().getTime();
         if (waitTime <= 0) {
             this.processNextObject();
         } else {
@@ -59,9 +60,9 @@ class TimedQueue<T> {
     private processNextObject(): void {
         let nextPair = this.queue.dequeue();
         if (!nextPair) return;
-        let nextObject = nextPair[1];
+        let [ , nextObject] = nextPair;
         this.callback(nextObject);
-        this.watch();
+        this.watch();      // Keep watching for the next objects
     }
 }
 
