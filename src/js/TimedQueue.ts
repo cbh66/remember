@@ -12,27 +12,18 @@ import Queue from './Queue';
 //   This means that no name will fade out until another one is ready.
 
 
-
-
-interface TimedQueueOptions<T> {
-    callback?: (object: T) => any;
-    updateFrequency?: number;      // In milliseconds, I would think
-}
-
-export default class TimedQueue<T> {
-    static OutOfOrderDateError = class extends RangeError {}
-
+class TimedQueue<T> {
     protected queue = new Queue<[Date, T]>();
     protected latestTime: Date = null;
     protected callback: (object: T) => any;
     protected updateFrequency: number;
 
-    public constructor(opts?: TimedQueueOptions<T>) {
+    public constructor(opts?: TimedQueue.Options<T>) {
         this.setOptions(opts || {});
     }
 
     // Sets defaults if not given
-    public setOptions(opts: TimedQueueOptions<T>): void {
+    public setOptions(opts: TimedQueue.Options<T>): void {
         this.callback = opts.callback || function (x: T) {}   // noop
         this.updateFrequency = opts.updateFrequency || 1000;
     }
@@ -73,3 +64,18 @@ export default class TimedQueue<T> {
         this.watch();
     }
 }
+
+
+module TimedQueue {
+    export class OutOfOrderDateError extends RangeError {}
+    export interface callbackType<T> {
+        (object: T): any;
+    }
+    export interface Options<T> {
+        callback?: (object: T) => any;
+        updateFrequency?: number;      // In milliseconds, I would think
+    }
+}
+
+
+export default TimedQueue;
