@@ -15,7 +15,7 @@ import Queue from './Queue';
 class TimedQueue<T> {
     protected queue = new Queue<[Date, T]>();
     protected latestTime: Date = null;
-    protected callback: (object: T) => any;
+    protected callback: TimedQueue.CallbackType<T>;
     protected updateFrequency: number;
 
     public constructor(opts?: TimedQueue.Options<T>) {
@@ -35,7 +35,7 @@ class TimedQueue<T> {
         }
         this.queue.enqueue([scheduledTime, object]);
         this.latestTime = scheduledTime;
-        if (this.queue.getLength() === 1) {
+        if (this.queue.getLength() === 1) {  // First object added
             this.watch();
         }
     }
@@ -68,11 +68,11 @@ class TimedQueue<T> {
 
 module TimedQueue {
     export class OutOfOrderDateError extends RangeError {}
-    export interface callbackType<T> {
+    export interface CallbackType<T> {
         (object: T): any;
     }
     export interface Options<T> {
-        callback?: (object: T) => any;
+        callback?: TimedQueue.CallbackType<T>;
         updateFrequency?: number;      // In milliseconds, I would think
     }
 }
