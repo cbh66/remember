@@ -10,42 +10,48 @@ import Queue from './Queue';
 //   scheduledTime - timeToFade out.  So, when it's popped off the queue,
 //   that's the signal to fade out then present the next one on time.
 //   This means that no name will fade out until another one is ready.
-interface TimedQueueOptions {
+
+class OutOfOrderDateError extends RangeError {}
+
+
+interface TimedQueueOptions<T> {  // fuck this
     callback?: (object: T) => any;
     updateFrequency?: number;      // In milliseconds, I would think
 }
 
-class OutOfOrderDateError extends RangeError {}
-
 export default class TimedQueue<T> {
     protected queue = new Queue<[Date, T]>();
-    protected latestTime = new Date();
+    protected latestTime: Date = null;
     protected callback: (object: T) => any;
     protected updateFrequency: number;
 
-    public constructor(opts?: TimedQueueOptions) {
+    public constructor(opts?: TimedQueueOptions<T>) {
         this.setOptions(opts || {});
     }
 
     // Sets defaults if not given
-    public setOptions(opts: TimedQueueOptions): void {
+    public setOptions(opts: TimedQueueOptions<T>): void {
         this.callback = opts.callback || function (x: T) {}   // noop
         this.updateFrequency = opts.updateFrequency || 1000;
     }
 
     public addLatest(object: T, scheduledTime: Date): void {
-        if (scheduledTime < this.latestTime) {
+        if (this.latestTime && scheduledTime < this.latestTime) {
             throw new OutOfOrderDateError('Date ' + scheduledTime +
                     ' is earlier than prior added date ' + this.latestTime);
         }
         this.queue.enqueue([scheduledTime, object]);
         this.latestTime = scheduledTime;
+        if (this.queue.getLength() === 1) {
+            this.watch();
+        }
     }
 
     public getLatestScheduledTime(): Date {
         return this.latestTime;
     }
 
+    // Recursive, but call stack size bounded by O(this.queue.length)
     private watch(): void {
         let nextPair = this.queue.peek();
         if (!nextPair) return;
