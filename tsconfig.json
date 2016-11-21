@@ -10,7 +10,8 @@
 	"pretty": true,
 	"types": [
 	    "mocha",
-	    "chai"
+	    "chai",
+	    "sinon"
 	]
     },
     "include": [
