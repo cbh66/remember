@@ -66,7 +66,14 @@ describe('TimedQueue', function () {
             expect(new TimedQueue().getLatestScheduledTime()).to.not.exist;
         });
 
-        it('should return the most recently added time');
+        it('should return the most recently added time', function () {
+            let testQueue = new TimedQueue<number>();
+            for (let i = 0; i < 1000; ++i) {
+                let nextTime = millisecondsFrom(i, new Date());
+                testQueue.addLatest(i, nextTime);
+                expect(testQueue.getLatestScheduledTime()).to.equal(nextTime);
+            }
+        });
 
         it('should no longer exist after last item has been processed');
     });
