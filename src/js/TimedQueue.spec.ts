@@ -58,7 +58,22 @@ describe('TimedQueue', function () {
             expect(spy.calledOnce).to.be.true;
         });
 
-        it('processes multiple items scheduled for the same time');
+        it('processes multiple items scheduled for the same time', function () {
+            let testNum = 100;
+            let spy = sinon.spy();
+            let testQueue = new TimedQueue<number>({ callback: spy });
+            let time = millisecondsFrom(5, new Date())
+            for (let i = 0; i < testNum; ++i) {
+                testQueue.addLatest(i, time);
+            }
+
+            clock.tick(4);
+            expect(spy.called).to.be.false;
+            clock.tick(1);
+            expect(spy.callCount).to.equal(testNum);
+        });
+
+        it('gets called on each object in order');
     });
 
     describe('#getLatestScheduledTime', function () {
@@ -67,8 +82,9 @@ describe('TimedQueue', function () {
         });
 
         it('should return the most recently added time', function () {
+            let testNum = 100;
             let testQueue = new TimedQueue<number>();
-            for (let i = 0; i < 1000; ++i) {
+            for (let i = 0; i < testNum; ++i) {
                 let nextTime = millisecondsFrom(i, new Date());
                 testQueue.addLatest(i, nextTime);
                 expect(testQueue.getLatestScheduledTime()).to.equal(nextTime);
