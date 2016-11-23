@@ -101,14 +101,18 @@ class TimedQueue<T> {
      */
     private watch(): void {
         let nextPair = this.queue.peek();
-        if (!nextPair) return;     // TODO: clear the latest time??
-        let [nextTime, ] = nextPair;
-        let waitTime = nextTime.getTime() - new Date().getTime();
-        if (waitTime <= 0) {
-            this.processNextObject();
+        if (nextPair) {
+            let [nextTime, ] = nextPair;
+            let waitTime = nextTime.getTime() - new Date().getTime();
+            if (waitTime <= 0) {
+                this.processNextObject();
+            } else {
+                setTimeout(this.watch.bind(this), waitTime);
+            }
         } else {
-            setTimeout(this.watch.bind(this), waitTime);
+            this.latestTime = null;
         }
+
     }
 
     /**

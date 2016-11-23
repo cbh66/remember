@@ -84,14 +84,35 @@ describe('TimedQueue', function () {
         it('should return the most recently added time', function () {
             let testNum = 100;
             let testQueue = new TimedQueue<number>();
-            for (let i = 0; i < testNum; ++i) {
+            // If it started at 0, the first one would be processed immediately
+            for (let i = 1; i < testNum; ++i) {
                 let nextTime = millisecondsFrom(i, new Date());
                 testQueue.addLatest(i, nextTime);
                 expect(testQueue.getLatestScheduledTime()).to.equal(nextTime);
             }
         });
 
-        it('should no longer exist after last item has been processed');
+        it('has no return value after last item has been processed', function () {
+            let allTestTimes = [
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                [3, 5, 6, 7, 10, 11],
+                [1, 2, 4, 5, 7, 9, 11, 13, 14, 16],
+                [4, 5, 5, 10, 14, 15],
+                [1, 1, 2, 3, 5, 8, 13, 21],
+                [1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 6, 6, 7]
+            ];
+            let testQueue = new TimedQueue<number>();
+            for (let i = 0; i < allTestTimes.length; ++i) {
+                let testTimes = allTestTimes[i];
+                for (let j = 0; j < testTimes.length; ++j) {
+                    let time = millisecondsFrom(testTimes[j], new Date());
+                    testQueue.addLatest(j, time);
+                }
+                let mostMs = testTimes[testTimes.length - 1]; // latest time
+                clock.tick(mostMs);
+                expect(testQueue.getLatestScheduledTime()).to.not.exist;
+            }
+        });
     });
 });
 
