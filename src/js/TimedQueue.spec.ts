@@ -73,7 +73,27 @@ describe('TimedQueue', function () {
             expect(spy.callCount).to.equal(testNum);
         });
 
-        it('gets called on each object in order');
+        it('gets called on each object in order', function () {
+            let testNum = 100;
+            let actualTime = 0;
+            let spy = sinon.spy();
+            let testQueue = new TimedQueue<number>({
+                callback: function (scheduledTime) {
+                    expect(scheduledTime).to.equal(actualTime);
+                    spy();
+                    ++actualTime;
+                }
+            });
+            for (let i = 0; i < testNum; ++i) {
+                testQueue.addLatest(i, millisecondsFrom(i, new Date()));
+            }
+            // for 0, should be called immediately
+            while (actualTime < testNum) {
+                let beforeTime = actualTime;
+                clock.tick(1);  // callbacks should be called here
+                expect(actualTime).to.equal(beforeTime + 1);
+            }
+        });
     });
 
     describe('#getLatestScheduledTime', function () {
