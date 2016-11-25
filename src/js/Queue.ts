@@ -50,6 +50,7 @@ export default class Queue<T> {
         var item: T = this.queue[this.offset];
 
         // increment the offset and remove the free space if necessary
+        // TODO: maybe don't do this as frequently?
         if (++ this.offset * 2 >= this.queue.length){
             this.queue  = this.queue.slice(this.offset);
             this.offset = 0;

@@ -1,6 +1,5 @@
 import Queue from './Queue';
-import * as chai from 'chai';
-var expect = chai.expect;
+import { expect } from 'chai';
 
 /**
  * Calls `callback` several times, each time passing a progressively larger
@@ -118,6 +117,8 @@ describe('Queue', function () {
             }
             expect(largeQueue.isEmpty()).to.be.true;
         });
+
+        it('should support alternating enqueue/dequeues');
     });
 
     describe('#getLength', function () {
