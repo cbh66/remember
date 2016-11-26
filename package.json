@@ -4,7 +4,7 @@
   "description": "An online memorial page for victims of genocide.",
   "main": "index.html",
   "scripts": {
-    "build": "webpack",
+    "build": "tsc",
     "test": "mocha --opts mocha.opts && rm -rf test"
   },
   "repository": {
@@ -34,7 +34,6 @@
     "sinon": "^1.17.6",
     "ts-loader": "^1.0.0",
     "ts-node": "^1.7.0",
-    "typescript": "^2.0.7",
-    "webpack": "^1.13.3"
+    "typescript": "^2.0.7"
   }
 }
