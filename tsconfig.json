@@ -9,6 +9,7 @@
 	"noEmitOnError": true,
 	"pretty": true,
 	"types": [
+            "lodash",
 	    "mocha",
 	    "chai",
 	    "sinon"
