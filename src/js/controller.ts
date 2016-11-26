@@ -92,7 +92,7 @@ var testContent : Array<Victim> = [
 ];
 
 let victimList: Queue<Victim> = new Queue<Victim>();
-_.each(testContent, (victim) => victimList.enqueue(testContent[i]));
+_.each(testContent, (victim) => victimList.enqueue(victim));
 
 function updateMemorialLoop(): void {
     console.log("Starting loop");
