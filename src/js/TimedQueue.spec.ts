@@ -65,7 +65,7 @@ describe('TimedQueue', function () {
             let spy = sinon.spy();
             let testQueue = new TimedQueue<number>({ callback: spy });
             let time = millisecondsFrom(5, new Date())
-            _.times(timesToTest, (i) => testQueue.addLatest(i, time));
+            _.times(timesToTest, (i: number) => testQueue.addLatest(i, time));
 
             clock.tick(4);
             expect(spy.called).to.be.false;
@@ -84,7 +84,7 @@ describe('TimedQueue', function () {
                     ++actualTime;
                 }
             });
-            _.times(timesToTest, function (i) {
+            _.times(timesToTest, function (i: number) {
                 testQueue.addLatest(i, millisecondsFrom(i, new Date()));
             });
             // for 0, should be called immediately
@@ -105,7 +105,7 @@ describe('TimedQueue', function () {
             let timesToTest = 100;
             let testQueue = new TimedQueue<number>();
             // If it started at 0, the first one would be processed immediately
-            _.each(_.range(1, timesToTest), function (i) {
+            _.each(_.range(1, timesToTest), function (i: number) {
                 let nextTime = millisecondsFrom(i, new Date());
                 testQueue.addLatest(i, nextTime);
                 expect(testQueue.getLatestScheduledTime()).to.equal(nextTime);
@@ -122,8 +122,8 @@ describe('TimedQueue', function () {
                 [1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 6, 6, 7]
             ];
             let testQueue = new TimedQueue<number>();
-            _.each(allTestTimes, function (timeList) {
-                _.each(timeList, function (num) {
+            _.each(allTestTimes, function (timeList: number[]) {
+                _.each(timeList, function (num: number) {
                     let time = millisecondsFrom(num, new Date());
                     testQueue.addLatest(num, time);
                 });

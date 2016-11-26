@@ -29,7 +29,7 @@ function forManyNumbersUpTo(max: number,
  */
 function makeQueueBetween(start: number, end: number): Queue<number> {
     let returnQueue = new Queue<number>();
-    _.each(_.range(start, end+1), (num) => returnQueue.enqueue(num));
+    _.each(_.range(start, end+1), (num: number) => returnQueue.enqueue(num));
     return returnQueue;
 }
 
@@ -97,7 +97,7 @@ describe('Queue', function () {
         it('should dequeue the same items that went in', function () {
             forManyNumbersUpTo(500, function (max: number) {
                 let testQueue = makeQueueBetween(0, max);
-                _.each(_.range(0, max+1), function (i) {
+                _.each(_.range(0, max+1), function (i: number) {
                     expect(testQueue.dequeue()).to.equal(i);
                 });
                 expect(testQueue.dequeue()).to.be.undefined;
@@ -125,8 +125,8 @@ describe('Queue', function () {
 
         it('should increase with each enqueue', function () {
             let testQueue = new Queue<number>();
-            _.times(1000, function (num) {  // starts at 0, when length is 1
-                testQueue.enqueue(num);
+            _.times(1000, function (num: number) {
+                testQueue.enqueue(num);     // starts at 0, when length is 1
                 expect(testQueue.getLength()).to.equal(num+1);
             });
         });
@@ -134,7 +134,7 @@ describe('Queue', function () {
         it('should decrease with each dequeue', function () {
             let max = 1000;
             let testQueue = makeQueueBetween(1, max);
-            _.each(_.range(max, 0), function (i) {
+            _.each(_.range(max, 0), function (i: number) {
                 testQueue.dequeue();
                 expect(testQueue.getLength(), 'length').to.equal(i - 1);
             });
