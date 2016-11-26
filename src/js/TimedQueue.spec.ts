@@ -1,6 +1,8 @@
 import TimedQueue from './TimedQueue';
 import { expect } from 'chai';
 import * as sinon from 'sinon';
+import * as _ from "lodash";
+
 
 /**
  * Creates a new date `ms` milliseconds after the given date
@@ -34,7 +36,7 @@ describe('TimedQueue', function () {
         it('should be an error to add things out of order', function () {
             let testQueue = new TimedQueue<number>();
             testQueue.addLatest(10, millisecondsFrom(10, new Date()));
-            let outOfOrderAddition = testQueue.addLatest.bind(testQueue, 10, new Date());
+            let outOfOrderAddition = _.bindKey(testQueue, "addLatest", 10, new Date());
             expect(outOfOrderAddition).to.throw(TimedQueue.OutOfOrderDateError);
         });
     });
@@ -59,22 +61,22 @@ describe('TimedQueue', function () {
         });
 
         it('processes multiple items scheduled for the same time', function () {
-            let testNum = 100;
+            let timesToTest = 100;
             let spy = sinon.spy();
             let testQueue = new TimedQueue<number>({ callback: spy });
             let time = millisecondsFrom(5, new Date())
-            for (let i = 0; i < testNum; ++i) {
+            _.times(timesToTest, function (i) {
                 testQueue.addLatest(i, time);
-            }
+            });
 
             clock.tick(4);
             expect(spy.called).to.be.false;
             clock.tick(1);
-            expect(spy.callCount).to.equal(testNum);
+            expect(spy.callCount).to.equal(timesToTest);
         });
 
         it('gets called on each object in order', function () {
-            let testNum = 100;
+            let timesToTest = 100;
             let actualTime = 0;
             let spy = sinon.spy();
             let testQueue = new TimedQueue<number>({
@@ -84,11 +86,11 @@ describe('TimedQueue', function () {
                     ++actualTime;
                 }
             });
-            for (let i = 0; i < testNum; ++i) {
+            _.times(timesToTest, function (i) {
                 testQueue.addLatest(i, millisecondsFrom(i, new Date()));
-            }
+            });
             // for 0, should be called immediately
-            while (actualTime < testNum) {
+            while (actualTime < timesToTest) {
                 let beforeTime = actualTime;
                 clock.tick(1);  // callbacks should be called here
                 expect(actualTime).to.equal(beforeTime + 1);
@@ -102,14 +104,14 @@ describe('TimedQueue', function () {
         });
 
         it('should return the most recently added time', function () {
-            let testNum = 100;
+            let timesToTest = 100;
             let testQueue = new TimedQueue<number>();
             // If it started at 0, the first one would be processed immediately
-            for (let i = 1; i < testNum; ++i) {
+            _.each(_.range(1, timesToTest), function (i) {
                 let nextTime = millisecondsFrom(i, new Date());
                 testQueue.addLatest(i, nextTime);
                 expect(testQueue.getLatestScheduledTime()).to.equal(nextTime);
-            }
+            });
         });
 
         it('has no return value after last item has been processed', function () {
@@ -122,16 +124,14 @@ describe('TimedQueue', function () {
                 [1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 6, 6, 7]
             ];
             let testQueue = new TimedQueue<number>();
-            for (let i = 0; i < allTestTimes.length; ++i) {
-                let testTimes = allTestTimes[i];
-                for (let j = 0; j < testTimes.length; ++j) {
-                    let time = millisecondsFrom(testTimes[j], new Date());
-                    testQueue.addLatest(j, time);
-                }
-                let mostMs = testTimes[testTimes.length - 1]; // latest time
-                clock.tick(mostMs);
+            _.each(allTestTimes, function (timeList) {
+                _.each(timeList, function (num) {
+                    let time = millisecondsFrom(num, new Date());
+                    testQueue.addLatest(num, time);
+                });
+                clock.tick(_.last(timeList));
                 expect(testQueue.getLatestScheduledTime()).to.not.exist;
-            }
+            });
         });
     });
 });
