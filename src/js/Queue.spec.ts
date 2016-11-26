@@ -1,5 +1,6 @@
 import Queue from './Queue';
 import { expect } from 'chai';
+import * as _ from 'lodash';
 
 /**
  * Calls `callback` several times, each time passing a progressively larger
@@ -11,7 +12,7 @@ import { expect } from 'chai';
 function forManyNumbersUpTo(max: number,
                             callback: (i: number) => any): void {
     let increment = 1;
-    for (let i = 1; i <= max; i += increment++) {  // i = 1,2,4,7,11,16,...
+    for (let i = 1; i <= max; i += increment++) {  // i = 1,2,4,7,11,16,22,...
         if (callback(i)) {
             break;
         }
@@ -28,15 +29,9 @@ function forManyNumbersUpTo(max: number,
  */
 function makeQueueBetween(start: number, end: number): Queue<number> {
     let returnQueue = new Queue<number>();
-    if (start <= end) {
-        for (let i = start; i <= end; ++i) {
-            returnQueue.enqueue(i);
-        }
-    } else {
-        for (let i = start; i >= end; --i) {
-            returnQueue.enqueue(i);
-        }
-    }
+    _.each(_.range(start, end+1), function (num) {
+        returnQueue.enqueue(num);
+    });
     return returnQueue;
 }
 
@@ -52,8 +47,8 @@ describe('Queue', function () {
 
     var largeQueue: Queue<number>;  // to be used later for dequeue test
     describe('#enqueue', function () {
-        it('should not crash when enqueueing 10 million elements', function () {
-            largeQueue = makeQueueBetween(1, 10*1000*1000);
+        it('should not crash when enqueueing a million elements', function () {
+            largeQueue = makeQueueBetween(1, 1000*1000);
             expect(largeQueue).to.be.ok;
         });
     });
@@ -71,11 +66,11 @@ describe('Queue', function () {
 
         it('should be empty after dequeueing all enqueued items', function () {
             forManyNumbersUpTo(500, function (max: number) {
-                let testQueue = makeQueueBetween(0, max);
-                for (let i = 0; i <= max; ++i) {
+                let testQueue = makeQueueBetween(1, max);
+                _.times(max, function () {
                     expect(testQueue.isEmpty(), 'isEmpty').to.be.false;
                     testQueue.dequeue();
-                }
+                });
                 expect(testQueue.isEmpty(), 'isEmpty').to.be.true;
             });
         });
@@ -104,17 +99,17 @@ describe('Queue', function () {
         it('should dequeue the same items that went in', function () {
             forManyNumbersUpTo(500, function (max: number) {
                 let testQueue = makeQueueBetween(0, max);
-                for (let i = 0; i <= max; ++i) {
+                _.each(_.range(0, max+1), function (i) {
                     expect(testQueue.dequeue()).to.equal(i);
-                }
+                });
                 expect(testQueue.dequeue()).to.be.undefined;
             });
         });
 
-        it('should empty a queue of 10 million elements', function () {
-            for (let i = 0; i < 10*1000*1000; ++i) {
+        it('should empty a queue of a million elements', function () {
+            _.times(1000*1000, function () {
                 largeQueue.dequeue();
-            }
+            });
             expect(largeQueue.isEmpty()).to.be.true;
         });
 
@@ -134,20 +129,19 @@ describe('Queue', function () {
 
         it('should increase with each enqueue', function () {
             let testQueue = new Queue<number>();
-            let max = 1000;
-            for (let i = 1; i <= max; ++i) {
-                testQueue.enqueue(i);
-                expect(testQueue.getLength()).to.equal(i);
-            }
+            _.times(1000, function (num) {  // starts at 0, when length is 1
+                testQueue.enqueue(num);
+                expect(testQueue.getLength()).to.equal(num+1);
+            });
         });
 
         it('should decrease with each dequeue', function () {
             let max = 1000;
             let testQueue = makeQueueBetween(1, max);
-            for (let i = max; i > 0; --i) {
+            _.each(_.range(max, 0), function (i) {
                 testQueue.dequeue();
                 expect(testQueue.getLength(), 'length').to.equal(i - 1);
-            }
+            });
         });
     });
 
@@ -156,27 +150,26 @@ describe('Queue', function () {
             expect(new Queue().peek()).to.equal(new Queue().dequeue());
             forManyNumbersUpTo(500, function (max) {
                 let testQueue = makeQueueBetween(1, max);
-                for (let i = 0; i < max; ++i) {
+                _.times(max, function () {
                     expect(testQueue.peek()).to.equal(testQueue.dequeue());
-                }
-            })
+                });
+            });
         });
 
         it('should output the same item after multiple calls', function () {
-            let numTries = 3;
             function verifyPeekValue(queue: Queue<any>): void {
                 let firstResult = queue.peek();
-                for (let i = 0; i < numTries; ++i) {
+                _.times(5, function () {
                     expect(queue.peek()).to.equal(firstResult);
-                }
+                });
             }
 
             verifyPeekValue(new Queue());
             let testQueue = makeQueueBetween(1, 1000);
-            for (let i = 0; i < 1000; ++i) {
+            _.times(500, function () {
                 verifyPeekValue(testQueue);
                 testQueue.dequeue();
-            }
+            });
         });
 
         it('should leave the length of the queue unchanged', function () {
@@ -188,10 +181,10 @@ describe('Queue', function () {
 
             verifyLengthAfterPeek(new Queue());
             let testQueue = makeQueueBetween(1, 1000);
-            for (let i = 0; i < 1000; ++i) {
+            _.times(1000, function () {
                 verifyLengthAfterPeek(testQueue);
                 testQueue.dequeue();
-            }
+            });
         });
     });
 });
