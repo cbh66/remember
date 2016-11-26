@@ -29,9 +29,7 @@ function forManyNumbersUpTo(max: number,
  */
 function makeQueueBetween(start: number, end: number): Queue<number> {
     let returnQueue = new Queue<number>();
-    _.each(_.range(start, end+1), function (num) {
-        returnQueue.enqueue(num);
-    });
+    _.each(_.range(start, end+1), (num) => returnQueue.enqueue(num));
     return returnQueue;
 }
 
@@ -107,9 +105,7 @@ describe('Queue', function () {
         });
 
         it('should empty a queue of a million elements', function () {
-            _.times(1000*1000, function () {
-                largeQueue.dequeue();
-            });
+            _.times(1000*1000, () => largeQueue.dequeue());
             expect(largeQueue.isEmpty()).to.be.true;
         });
 

@@ -65,9 +65,7 @@ describe('TimedQueue', function () {
             let spy = sinon.spy();
             let testQueue = new TimedQueue<number>({ callback: spy });
             let time = millisecondsFrom(5, new Date())
-            _.times(timesToTest, function (i) {
-                testQueue.addLatest(i, time);
-            });
+            _.times(timesToTest, (i) => testQueue.addLatest(i, time));
 
             clock.tick(4);
             expect(spy.called).to.be.false;
