@@ -1,7 +1,8 @@
 /// <reference path="lib/jquery.d.ts" />
 /// <reference path="Queue.ts" />
 /// <reference path="victim.d.ts" />
-import Queue from "./Queue";
+import Queue from './Queue';
+import * as _ from 'lodash';
 
 function verticallyCenter(inner: JQuery, container: JQuery): void  {
     let inHeight = inner.outerHeight();
@@ -91,9 +92,7 @@ var testContent : Array<Victim> = [
 ];
 
 let victimList: Queue<Victim> = new Queue<Victim>();
-for (let i = 0; i < testContent.length; ++i) {
-    victimList.enqueue(testContent[i])
-}
+_.each(testContent, (victim) => victimList.enqueue(testContent[i]));
 
 function updateMemorialLoop(): void {
     console.log("Starting loop");
