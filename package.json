@@ -4,7 +4,8 @@
   "description": "An online memorial page for victims of genocide.",
   "main": "index.html",
   "scripts": {
-    "build": "tsc",
+    "build": "gulp",
+    "build-dev": "gulp dev",
     "test": "mocha --opts mocha.opts && rm -rf test"
   },
   "repository": {
