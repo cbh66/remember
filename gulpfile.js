@@ -5,6 +5,13 @@ var tsify = require("tsify");
 var uglify = require("gulp-uglify");
 var sourcemaps = require("gulp-sourcemaps");
 var buffer = require("vinyl-buffer");
+var sass = require("gulp-sass");
+
+gulp.task("styles", function () {
+    return gulp.src('src/css/*.scss')
+        .pipe(sass().on('error', sass.logError))
+        .pipe(gulp.dest('build/css'));
+});
 
 gulp.task("dev", function () {
     return browserify({
