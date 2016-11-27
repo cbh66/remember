@@ -37,7 +37,7 @@ gulp.task("js-dev", function () {
 	cache: {},
 	packageCache: {}
     })
-    .plugin(tsify)
+	.plugin(tsify, {project: "tsconfig.json"})
     .bundle()
     .pipe(source('main.js'))
     .pipe(gulp.dest("build/js"));
