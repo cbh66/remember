@@ -6,7 +6,7 @@
   "scripts": {
     "build": "gulp",
     "build-dev": "gulp dev",
-    "test": "mocha --opts mocha.opts && rm -rf test"
+    "test": "mocha --opts config/mocha.opts && rm -rf test"
   },
   "repository": {
     "type": "git",
