@@ -9,7 +9,9 @@ var sass = require("gulp-sass");
 
 gulp.task("styles", function () {
     return gulp.src('src/css/*.scss')
+        .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
+        .pipe(sourcemaps.write())
         .pipe(gulp.dest('build/css'));
 });
 
