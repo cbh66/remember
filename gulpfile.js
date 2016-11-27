@@ -7,15 +7,22 @@ var sourcemaps = require("gulp-sourcemaps");
 var buffer = require("vinyl-buffer");
 var sass = require("gulp-sass");
 
+
 gulp.task("styles", function () {
     return gulp.src('src/css/*.scss')
-        .pipe(sourcemaps.init())
-        .pipe(sass().on('error', sass.logError))
-        .pipe(sourcemaps.write())
-        .pipe(gulp.dest('build/css'));
+	.pipe(sass({outputStyle: "compressed"}).on('error', sass.logError))
+	.pipe(gulp.dest('build/css'));
 });
 
-gulp.task("dev", function () {
+gulp.task("styles-dev", function () {
+    return gulp.src('src/css/*.scss')
+	.pipe(sourcemaps.init())
+	.pipe(sass({outputStyle: "expanded"}).on('error', sass.logError))
+	.pipe(sourcemaps.write())
+	.pipe(gulp.dest('build/css'));
+});
+
+gulp.task("js-dev", function () {
     return browserify({
         basedir: '.',
         debug: true,
@@ -29,7 +36,7 @@ gulp.task("dev", function () {
     .pipe(gulp.dest("build/js"));
 });
 
-gulp.task("default", function () {
+gulp.task("js", function () {
     return browserify({
 	    basedir: '.',
 	    debug: false,
@@ -46,3 +53,6 @@ gulp.task("default", function () {
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('build/js'));
 });
+
+gulp.task("dev", ["styles-dev", "js-dev"]);
+gulp.task("default", ["styles", "js"]);
