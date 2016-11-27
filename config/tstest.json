@@ -1,0 +1,9 @@
+{
+    "extends": "./tsbase",
+    "compilerOptions": {
+        "outDir": "./test/js",
+    },
+    "include": [
+        "./src/js/**/*"
+    ]
+}

@@ -1,5 +1,6 @@
 --require ts-node/register
 --require chai
 --watch-extensions tsx,ts
+--project config/tstest.json
 src/**/*.spec.tsx
 src/**/*.spec.ts
