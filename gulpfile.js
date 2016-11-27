@@ -9,15 +9,22 @@ var sass = require("gulp-sass");
 
 
 gulp.task("styles", function () {
+    var sassTask = sass({
+	outputStyle: "compressed"
+    }).on('error', sass.logError);
     return gulp.src('src/css/*.scss')
-	.pipe(sass({outputStyle: "compressed"}).on('error', sass.logError))
+	.pipe(sassTask)
 	.pipe(gulp.dest('build/css'));
 });
 
 gulp.task("styles-dev", function () {
+    var sassTask = sass({
+	outputStyle: "nested",
+	sourceComments: true
+    }).on('error', sass.logError);
     return gulp.src('src/css/*.scss')
 	.pipe(sourcemaps.init())
-	.pipe(sass({outputStyle: "nested"}).on('error', sass.logError))
+	.pipe(sassTask)
 	.pipe(sourcemaps.write())
 	.pipe(gulp.dest('build/css'));
 });
