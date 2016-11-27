@@ -1,0 +1,11 @@
+{
+    "extends": "./tsbase",
+    "compilerOptions": {
+        "outDir": "./build/js",
+        "removeComments": true,
+        "pretty": true
+    },
+    "include": [
+    	"./src/js/controller.ts"
+    ]
+}

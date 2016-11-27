@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "es3",
+        "allowJs": true,
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "noEmitOnError": true,
+        "types": [
+            "lodash",
+            "mocha",
+            "chai",
+            "sinon"
+        ]
+    }
+}

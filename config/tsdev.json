@@ -1,0 +1,10 @@
+{
+    "extends": "./tsbuild",
+    "compilerOptions": {
+        "removeComments": false,
+        "pretty": true
+    },
+    "include": [
+    	"./src/js/controller.ts"
+    ]
+}
