@@ -16,6 +16,7 @@
 	]
     },
     "include": [
+    	//"./src/js/controller.ts"
         "./src/js/**/*"
     ]
 }
