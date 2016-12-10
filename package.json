@@ -29,9 +29,6 @@
   },
   "homepage": "https://github.com/cbh66/remember",
   "devDependencies": {
-    "@types/chai": "^3.4.34",
-    "@types/mocha": "^2.2.33",
-    "@types/sinon": "^1.16.32",
     "chai": "^3.5.0",
     "mocha": "^3.1.2",
     "sinon": "^1.17.6",
@@ -39,6 +36,9 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.40",
+    "@types/chai": "^3.4.34",
+    "@types/mocha": "^2.2.33",
+    "@types/sinon": "^1.16.32",
     "express": "^4.14.0",
     "browserify": "^13.1.1",
     "gulp": "^3.9.1",
