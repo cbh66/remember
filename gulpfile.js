@@ -6,6 +6,9 @@ var uglify = require("gulp-uglify");
 var sourcemaps = require("gulp-sourcemaps");
 var buffer = require("vinyl-buffer");
 var sass = require("gulp-sass");
+var tsc = require('gulp-typescript');
+
+var tsServerProject = tsc.createProject('config/tsserver.json');
 
 
 gulp.task("styles", function () {
@@ -47,7 +50,7 @@ gulp.task("js", function () {
     return browserify({
 	    basedir: '.',
 	    debug: false,
-            entries: ['src/js/controller.ts'],
+	    entries: ['src/js/controller.ts'],
             cache: {},
             packageCache: {}
     })
@@ -61,5 +64,11 @@ gulp.task("js", function () {
     .pipe(gulp.dest('build/js'));
 });
 
+gulp.task("server", function () {
+    return tsServerProject.src()
+    .pipe(tsServerProject())
+    .pipe(gulp.dest('./'));
+});
+
 gulp.task("dev", ["styles-dev", "js-dev"]);
-gulp.task("default", ["styles", "js"]);
+gulp.task("default", ["server", "styles", "js"]);
