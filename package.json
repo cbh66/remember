@@ -7,7 +7,8 @@
     "start": "node server.js",
     "build": "gulp",
     "build-dev": "gulp dev",
-    "test": "mocha --opts config/mocha.opts && rm -rf test"
+    "test": "mocha --opts config/mocha.opts && rm -rf test",
+    "heroku-postbuild": "npm run build"
   },
   "engines": {
     "node": "6.9.1"
