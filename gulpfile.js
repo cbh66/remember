@@ -7,9 +7,20 @@ var sourcemaps = require("gulp-sourcemaps");
 var buffer = require("vinyl-buffer");
 var sass = require("gulp-sass");
 var tsc = require('gulp-typescript');
+var typedoc = require('gulp-typedoc');
 
 var tsServerProject = tsc.createProject('config/tsserver.json');
 
+gulp.task("docs", function () {
+    return gulp
+        .src(["src/**/*.ts", "!src/**/*.spec.ts"])
+        .pipe(typedoc({
+	    module: "commonjs",
+	    target: "es3",
+	    out: "docs/",
+	    name: "Together We Remember"
+        }));
+});
 
 gulp.task("styles", function () {
     var sassTask = sass({
