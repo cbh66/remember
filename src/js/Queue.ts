@@ -31,7 +31,7 @@ export default class Queue<T> {
         return (this.queue.length == 0);
     }
 
-    /* Enqueues the specified item. The parameter is:
+    /** Enqueues the specified item. The parameter is:
      *
      * item - the item to enqueue
      */
@@ -39,7 +39,7 @@ export default class Queue<T> {
         this.queue.push(item);
     }
 
-    /* Dequeues an item and returns it. If the queue is empty, the value
+    /** Dequeues an item and returns it. If the queue is empty, the value
      * 'undefined' is returned.
      */
     public dequeue(): T {
@@ -60,7 +60,7 @@ export default class Queue<T> {
         return item;
     }
 
-    /* Returns the item at the front of the queue (without dequeuing it). If
+    /** Returns the item at the front of the queue (without dequeuing it). If
      * the queue is empty then undefined is returned.
      */
     public peek(): T {

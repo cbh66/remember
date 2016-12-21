@@ -61,7 +61,7 @@ gulp.task("js", function () {
     return browserify({
 	    basedir: '.',
 	    debug: false,
-	    entries: ['src/js/controller.ts'],
+            entries: ['src/js/controller.ts'],
             cache: {},
             packageCache: {}
     })
