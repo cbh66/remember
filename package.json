@@ -7,6 +7,7 @@
     "start": "node server.js",
     "build": "gulp",
     "build-dev": "gulp dev",
+    "docs": "gulp docs",
     "test": "mocha --opts config/mocha.opts && rm -rf test",
     "heroku-postbuild": "npm run build"
   },
@@ -31,9 +32,11 @@
   "homepage": "https://github.com/cbh66/remember",
   "devDependencies": {
     "chai": "^3.5.0",
+    "gulp-typedoc": "^2.0.1",
     "mocha": "^3.1.2",
     "sinon": "^1.17.6",
-    "ts-loader": "^1.0.0"
+    "ts-loader": "^1.0.0",
+    "typedoc": "^0.5.1"
   },
   "dependencies": {
     "@types/lodash": "^4.14.40",

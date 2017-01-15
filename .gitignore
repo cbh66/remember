@@ -1,6 +1,7 @@
 build/
-.sass-cache
+docs/
 node_modules/
+.sass-cache
 *.sublime-workspace
 *~
 #*#
