@@ -34,8 +34,7 @@
     "chai": "^3.5.0",
     "mocha": "^3.1.2",
     "sinon": "^1.17.6",
-    "ts-loader": "^1.0.0",
-    "typedoc": "^0.5.1"
+    "ts-loader": "^1.0.0"
   },
   "dependencies": {
     "@types/chai": "^3.4.34",
@@ -53,6 +52,7 @@
     "lodash": "^4.17.2",
     "ts-node": "^1.7.0",
     "tsify": "^2.0.3",
+    "typedoc": "^0.5.5",
     "typescript": "^2.1.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
