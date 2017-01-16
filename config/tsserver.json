@@ -1,0 +1,11 @@
+{
+    "extends": "./tsbase",
+    "compilerOptions": {
+        "removeComments": true,
+        "pretty": true
+    },
+    "include": [
+        "../server.ts",
+        "../hydrate.ts"
+    ]
+}
