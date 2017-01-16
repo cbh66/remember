@@ -5,6 +5,7 @@
         "pretty": true
     },
     "include": [
-    	"../server.ts"
+        "../server.ts",
+        "../hydrate.ts"
     ]
 }

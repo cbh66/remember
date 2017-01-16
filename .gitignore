@@ -1,9 +1,11 @@
 build/
 docs/
 node_modules/
+mongo/
 .sass-cache
 *.sublime-workspace
 *~
 #*#
 .DS_Store
 server.js*
+hydrate.js
