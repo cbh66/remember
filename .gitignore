@@ -1,6 +1,7 @@
 build/
 docs/
 node_modules/
+mongo/
 .sass-cache
 *.sublime-workspace
 *~
