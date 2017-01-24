@@ -10,8 +10,11 @@ var buffer = require("vinyl-buffer");
 var sass = require("gulp-sass");
 var tsc = require('gulp-typescript');
 var typedoc = require('gulp-typedoc');
+var fs = require('fs');
 
 var tsServerProject = tsc.createProject('config/tsserver.json');
+
+var mongoPath = "./mongo";
 
 function handleOutput(err, stdout, stderr) {
     if (err) {
@@ -100,7 +103,10 @@ gulp.task("server", function () {
 });
 
 gulp.task("startdb", ["server"], function () {
-    runAsync("mongod --dbpath ./mongo");
+    if (!fs.existsSync(mongoPath)) {
+	fs.mkdirSync(mongoPath);
+    }
+    runAsync("mongod --dbpath " + mongoPath);
     setTimeout(function () {runAsync("node hydrate.js");}, 5000);
 });
 
