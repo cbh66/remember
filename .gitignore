@@ -8,3 +8,4 @@ mongo/
 #*#
 .DS_Store
 server.js*
+hydrate.js*
