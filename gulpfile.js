@@ -1,4 +1,6 @@
 var gulp = require("gulp");
+var nodemon = require("gulp-nodemon");
+var childProcess = require("child_process");
 var browserify = require("browserify");
 var source = require('vinyl-source-stream');
 var tsify = require("tsify");
@@ -10,6 +12,20 @@ var tsc = require('gulp-typescript');
 var typedoc = require('gulp-typedoc');
 
 var tsServerProject = tsc.createProject('config/tsserver.json');
+
+function runAsync(command) {
+    var p = childProcess.exec(command, function (err, stdout, stderr) {
+        if (err) {
+	    throw err;
+	}
+	console.log(stdout);
+	console.error(stderr);
+    });
+    p.stdout.on("data", function (data) {
+        console.log(data);
+    });
+    return p;
+}
 
 gulp.task("docs", function () {
     return gulp
@@ -81,5 +97,22 @@ gulp.task("server", function () {
     .pipe(gulp.dest('./'));
 });
 
+gulp.task("startdb", function () {
+    runAsync("mongod --dbpath ./mongo");
+});
+
+
+gulp.task("startserver", ["server"], function () {
+    return nodemon({
+        script: "server.js",
+	watch: "server.js"
+    }).on("restart", function () {
+        console.log("Server restarting....");
+    }).on("crash", function () {
+        console.error("Server has crashed.")
+    });
+});
+
 gulp.task("dev", ["styles-dev", "js-dev"]);
 gulp.task("default", ["server", "styles", "js"]);
+gulp.task("run", ["default", "startdb", "startserver"]);
