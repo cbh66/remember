@@ -13,14 +13,16 @@ var typedoc = require('gulp-typedoc');
 
 var tsServerProject = tsc.createProject('config/tsserver.json');
 
+function handleOutput(err, stdout, stderr) {
+    if (err) {
+        throw err;
+    }
+    console.log(stdout);
+    console.error(stderr);
+}
+
 function runAsync(command) {
-    var p = childProcess.exec(command, function (err, stdout, stderr) {
-        if (err) {
-	    throw err;
-	}
-	console.log(stdout);
-	console.error(stderr);
-    });
+    var p = childProcess.exec(command, handleOutput);
     p.stdout.on("data", function (data) {
         console.log(data);
     });
@@ -97,8 +99,9 @@ gulp.task("server", function () {
     .pipe(gulp.dest('./'));
 });
 
-gulp.task("startdb", function () {
+gulp.task("startdb", ["server"], function () {
     runAsync("mongod --dbpath ./mongo");
+    setTimeout(function () {runAsync("node hydrate.js");}, 5000);
 });
 
 

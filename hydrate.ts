@@ -50,18 +50,24 @@ var seedData = [
     }
 ];
 
-MongoClient.connect(mongoUrl, function (err: mongo.MongoError, db: mongo.Db) {
-    if (err) {
-        console.error("Error connecting to database:");
+function connectNtimes(n: number, err?: mongo.MongoError) {
+    if (n <= 0) {
         throw err;
-    } else {
-        var names = db.collection('names');
-        console.log("Clearing database to start fresh");
-        names.remove({});
-        names.insert(seedData, function (err, result) {
-            if (err) throw err;
-            console.log("Database successfully seeded");
-            db.close();
-        });
     }
-});
+    MongoClient.connect(mongoUrl, function (err: mongo.MongoError, db: mongo.Db) {
+        if (err) {
+            console.error("Error connecting to database....");
+            setTimeout(10000, function () {connectNtimes(n-1, err);});
+        } else {
+            var names = db.collection('names');
+            console.log("Clearing database to start fresh");
+            names.remove({});
+            names.insert(seedData, function (err, result) {
+                if (err) throw err;
+                console.log("Database successfully seeded");
+                db.close();
+            });
+        }
+    });
+}
+connectNtimes(5);
