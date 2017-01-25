@@ -37,7 +37,7 @@ describe('TimedQueue', function () {
             let testQueue = new TimedQueue<number>();
             testQueue.addLatest(10, millisecondsFrom(10, new Date()));
             let outOfOrderAddition = _.bindKey(testQueue, "addLatest", 10, new Date());
-            expect(outOfOrderAddition).to.throw(TimedQueue.OutOfOrderDateError);
+            expect(outOfOrderAddition).to.throw("OutOfOrderDateError");
         });
     });
 

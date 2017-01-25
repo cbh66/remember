@@ -134,7 +134,13 @@ module TimedQueue {
     /**
      * An error thrown when dates are inserted out of order.
      */
-    export class OutOfOrderDateError extends RangeError {}
+    export class OutOfOrderDateError extends RangeError {
+        public name = "OutOfOrderDateError";
+        constructor(public message: string) {
+            super(message);
+            this.message = this.name + ": " + message;
+        }
+    };
     /**
      * A type for callbacks that can process T objects.
      */
