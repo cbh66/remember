@@ -125,3 +125,9 @@ gulp.task("startserver", ["server"], function () {
 gulp.task("dev", ["styles-dev", "js-dev"]);
 gulp.task("default", ["server", "styles", "js"]);
 gulp.task("run", ["default", "startdb", "startserver"]);
+gulp.task("watch", ["run"], function () {
+    gulp.watch("./server.ts", ["server"]);
+    gulp.watch("./src/**/*.ts", ["js-dev"]);
+    gulp.watch("./src/**/*.scss", ["styles-dev"]);
+    // startserver already watched for the server file
+});
