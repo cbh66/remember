@@ -3,6 +3,7 @@
         "target": "es3",
         "allowJs": true,
         "noImplicitAny": true,
+	"strictNullChecks": true,
         "noUnusedLocals": true,
         "noEmitOnError": true,
         "types": [
