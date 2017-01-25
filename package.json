@@ -33,8 +33,6 @@
   "homepage": "https://github.com/cbh66/remember",
   "devDependencies": {
     "chai": "^3.5.0",
-    "child_process": "^1.0.2",
-    "gulp-nodemon": "^2.2.1",
     "mocha": "^3.1.2",
     "sinon": "^1.17.6",
     "ts-loader": "^1.0.0"
@@ -47,8 +45,10 @@
     "@types/mongodb": "^2.1.37",
     "@types/sinon": "^1.16.32",
     "browserify": "^13.1.1",
+    "child_process": "^1.0.2",
     "express": "^4.14.0",
     "gulp": "^3.9.1",
+    "gulp-nodemon": "^2.2.1",
     "gulp-sass": "^2.3.2",
     "gulp-sourcemaps": "^1.9.1",
     "gulp-typedoc": "^2.0.2",
