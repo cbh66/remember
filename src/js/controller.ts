@@ -96,7 +96,7 @@ _.each(testContent, (victim: Victim) => victimList.enqueue(victim));
 
 function updateMemorialLoop(): void {
     console.log("Starting loop");
-    let currentVictim: Victim = victimList.dequeue();
+    let currentVictim = victimList.dequeue();
     if (!currentVictim) {
         return console.error("Could not retrieve more names");
     }
