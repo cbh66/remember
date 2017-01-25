@@ -8,6 +8,7 @@
     "start-dev": "gulp run",
     "build": "gulp",
     "build-dev": "gulp dev",
+    "watch": "gulp watch",
     "docs": "gulp docs",
     "test": "mocha --opts config/mocha.opts && rm -rf test",
     "heroku-postbuild": "npm run build"
