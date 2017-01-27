@@ -6,8 +6,21 @@ var app = express();
 var mongoUrl: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/local';
 console.log(mongoUrl);
 
+function randomNameSample(names: mongo.Collection, quantity: number, response: any) {
+    return names.aggregate([{
+            "$sample": { "size": quantity }
+        }]).toArray(function (err, docs) {
+            if (err) {
+                response.status(500).end();
+            } else {
+                response.status(200);
+                response.send(docs);
+            }
+        });
+}
+
 function setupAppWithDb(db: mongo.Db) {
-    var names = db.collection('names');
+    let names = db.collection('names');
     app.set('port', (process.env.PORT || 5000));
 
     app.use(express.static(__dirname));
@@ -34,16 +47,13 @@ function setupAppWithDb(db: mongo.Db) {
 
     app.get('/api/random', function(request, response) {
         let quantity: number = +(request.query.amount || 3);
-        names.aggregate([{
-            "$sample": { "size": quantity }
-        }]).toArray(function (err, docs) {
-            if (err) {
-                response.status(500).end();
-            } else {
-                response.status(200);
-                response.send(docs);
-            }
-        });
+        randomNameSample(names, quantity, response);
+    });
+
+    app.get('/api/schedule', function(request, response) {
+        // TODO: Allow "before" and "after" times
+        let quantity: number = +(request.query.next || 3);
+        randomNameSample(names, quantity, response);
     });
 }
 
