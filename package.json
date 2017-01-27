@@ -5,8 +5,10 @@
   "main": "index.html",
   "scripts": {
     "start": "node server.js",
+    "start-dev": "gulp run",
     "build": "gulp",
     "build-dev": "gulp dev",
+    "watch": "gulp watch",
     "docs": "gulp docs",
     "test": "mocha --opts config/mocha.opts && rm -rf test",
     "heroku-postbuild": "npm run build"
@@ -44,8 +46,10 @@
     "@types/mongodb": "^2.1.37",
     "@types/sinon": "^1.16.32",
     "browserify": "^13.1.1",
+    "child_process": "^1.0.2",
     "express": "^4.14.0",
     "gulp": "^3.9.1",
+    "gulp-nodemon": "^2.2.1",
     "gulp-sass": "^2.3.2",
     "gulp-sourcemaps": "^1.9.1",
     "gulp-typedoc": "^2.0.2",

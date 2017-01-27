@@ -7,5 +7,6 @@ mongo/
 *~
 #*#
 .DS_Store
+npm-debug.log
 server.js*
-hydrate.js
+hydrate.js*

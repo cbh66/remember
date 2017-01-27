@@ -42,7 +42,7 @@ export default class Queue<T> {
     /** Dequeues an item and returns it. If the queue is empty, the value
      * 'undefined' is returned.
      */
-    public dequeue(): T {
+    public dequeue(): T | undefined {
         // if the queue is empty, return immediately
         if (this.queue.length == 0) return undefined;
 
@@ -63,7 +63,7 @@ export default class Queue<T> {
     /** Returns the item at the front of the queue (without dequeuing it). If
      * the queue is empty then undefined is returned.
      */
-    public peek(): T {
+    public peek(): T | undefined {
         return (this.queue.length > 0) ? this.queue[this.offset] : undefined;
     }
 }
