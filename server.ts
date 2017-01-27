@@ -31,6 +31,20 @@ function setupAppWithDb(db: mongo.Db) {
             }
         });
     });
+
+    app.get('/api/random', function(request, response) {
+        let quantity: number = +(request.query.amount || 3);
+        names.aggregate([{
+            "$sample": { "size": quantity }
+        }]).toArray(function (err, docs) {
+            if (err) {
+                response.status(500).end();
+            } else {
+                response.status(200);
+                response.send(docs);
+            }
+        });
+    });
 }
 
 
