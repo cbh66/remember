@@ -47,7 +47,7 @@ gulp.task("styles", function () {
     var sassTask = sass({
 	outputStyle: "compressed"
     }).on('error', sass.logError);
-    return gulp.src('src/css/*.scss')
+    return gulp.src('src/styles/*.scss')
 	.pipe(sassTask)
 	.pipe(gulp.dest('build/css'));
 });
@@ -57,7 +57,7 @@ gulp.task("styles-dev", function () {
 	outputStyle: "nested",
 	sourceComments: true
     }).on('error', sass.logError);
-    return gulp.src('src/css/*.scss')
+    return gulp.src('src/styles/*.scss')
 	.pipe(sourcemaps.init())
 	.pipe(sassTask)
 	.pipe(sourcemaps.write())
