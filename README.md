@@ -20,7 +20,7 @@ The other available tasks are:
 
 |  Node task  |  Effect  |
 |-------------|----------|
-| `npm run build` | Compiles the server, javascript, and typescript files for a production environment. |
+| `npm run build` | Compiles the server, javascript, and css files for a production environment. |
 | `npm run build-dev` | Compiles development versions of all files, including metadata for easier debugging. |
 | `npm start` | Starts the production environment server. Must have compiled code, and must have mongodb running with its URI in MONGODB_URI (or else running on the default port 27017). |
 | `npm run start-dev` | Runs a local server, connected to a local database filled with test data. |
