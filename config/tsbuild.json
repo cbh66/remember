@@ -6,6 +6,6 @@
         "pretty": true
     },
     "include": [
-    	"./src/js/controller.ts"
+    	"./src/ts/controller.ts"
     ]
 }

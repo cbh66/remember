@@ -68,7 +68,7 @@ gulp.task("js-dev", function () {
     return browserify({
         basedir: '.',
         debug: true,
-	entries: ['src/js/controller.ts'],
+	entries: ['src/ts/controller.ts'],
 	cache: {},
 	packageCache: {}
     })
@@ -82,7 +82,7 @@ gulp.task("js", function () {
     return browserify({
 	    basedir: '.',
 	    debug: false,
-            entries: ['src/js/controller.ts'],
+            entries: ['src/ts/controller.ts'],
             cache: {},
             packageCache: {}
     })

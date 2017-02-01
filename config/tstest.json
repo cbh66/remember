@@ -4,6 +4,6 @@
         "outDir": "./test/js",
     },
     "include": [
-        "./src/js/**/*"
+        "./src/ts/**/*"
     ]
 }
