@@ -99,10 +99,25 @@ gulp.task("js", function () {
 gulp.task("server", function () {
     return tsServerProject.src()
     .pipe(tsServerProject())
-    .pipe(gulp.dest('./'));
+    .pipe(gulp.dest('./build/server'));
 });
 
-gulp.task("startdb", ["server"], function () {
+
+gulp.task("hydrate", function () {
+    return gulp.src("./hydrate.ts")
+    .pipe(tsc({
+	noImplicitAny: true,
+        out: "./hydrate.ts"
+     }))
+    .pipe(gulp.dest("./"))
+});
+
+gulp.task("copyHtml", function () {
+    return gulp.src("./src/**/*.html")
+    .pipe(gulp.dest("./build"));
+});
+
+gulp.task("startdb", ["server", "hydrate"], function () {
     if (!fs.existsSync(mongoPath)) {
 	fs.mkdirSync(mongoPath);
     }
@@ -113,8 +128,8 @@ gulp.task("startdb", ["server"], function () {
 
 gulp.task("startserver", ["server"], function () {
     return nodemon({
-        script: "server.js",
-	watch: "server.js"
+        script: "build/server/app.js",
+        watch: "build/server/app.js"
     }).on("restart", function () {
         console.log("Server restarting....");
     }).on("crash", function () {
@@ -122,12 +137,13 @@ gulp.task("startserver", ["server"], function () {
     });
 });
 
-gulp.task("dev", ["styles-dev", "js-dev"]);
-gulp.task("default", ["server", "styles", "js"]);
+gulp.task("dev", ["styles-dev", "js-dev", "copyHtml"]);
+gulp.task("default", ["server", "styles", "js", "copyHtml"]);
 gulp.task("run", ["default", "startdb", "startserver"]);
 gulp.task("watch", ["run"], function () {
-    gulp.watch("./server.ts", ["server"]);
-    gulp.watch("./src/**/*.ts", ["js-dev"]);
-    gulp.watch("./src/**/*.scss", ["styles-dev"]);
+    gulp.watch("./src/server/**/*.ts", ["server"]);
+    gulp.watch("./src/ts/**/*.ts", ["js-dev"]);
+    gulp.watch("./src/styles/**/*.scss", ["styles-dev"]);
+    gulp.watch("./src/**/*.html", ["copyHtml"]);
     // startserver already watched for the server file
 });
