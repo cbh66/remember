@@ -1,10 +1,14 @@
 import * as express from "express";
 import * as mongo from "mongodb";
+import * as path from "path";
 var MongoClient = mongo.MongoClient;
 var app = express();
 
 var mongoUrl: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/local';
 console.log(mongoUrl);
+
+var buildDir = path.resolve(__dirname + "/../");
+console.log(buildDir);
 
 function randomNameSample(names: mongo.Collection, quantity: number, response: any) {
     return names.aggregate([{
@@ -24,14 +28,14 @@ function setupAppWithDb(db: mongo.Db) {
     app.set('port', (process.env.PORT || 5000));
 
     app.use(express.static(__dirname));
-    app.use("/build", express.static(__dirname + "/build"));
+    app.use("/build", express.static(buildDir));
 
     app.get('/', function(request, response) {
-      response.sendFile('index.html');
+      response.sendFile('index.html', {root: buildDir});
     });
 
     app.get('/build/js/main.js', function(request, response) {
-      response.sendFile('./build/js/main.min.js', {root: __dirname});
+      response.sendFile('js/main.min.js', {root: buildDir});
     });
 
     app.get('/api/all', function(request, response) {
