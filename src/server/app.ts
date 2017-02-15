@@ -79,7 +79,7 @@ function setupAppWithDb(db: mongo.Db) {
             before = new Date(params.before);
             quantity = (before.getTime() - after.getTime()) / (DURATION*1000);
         }
-        if (!before || !_.isFinite(before.getTime()) || before.getTime > after.getTime()) {
+        if (!before || !_.isFinite(before.getTime()) || before.getTime() > after.getTime()) {
             if (!quantity) {
                 quantity = 3;
             }
