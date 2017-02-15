@@ -59,16 +59,17 @@ function updateMemorialLoop(): void {
             }, 3 * 1000);
         });
     }, waitTime);
+    console.log("Length: " + victimList.getLength());
+    if (victimList.getLength() < 100) {
+        addNewVictims();
+    }
 }
 
-$(document).ready(function () {
-    console.log("trying....");
-    /* TODO: Retry on fail after some time
-     * TODO: Try again:
-     *   - when the queue is empty
-     *   - a few seconds after a failure
-     *   - every few seconds in chunks if queue is below a certain capacity
-     *   - a few minutes after the queue reaches capacity
+function addNewVictims(callback?: ()=>void) {
+    const nonNullCallback = callback || _.noop;
+    console.log("trying to add...");
+    /* TODO: Retry on fail after some time and try again a few seconds
+     *     after a failure
      */
     $.get("api/schedule", function (data: Victim[]) {
         _.each(data, function (victim: Victim) {
@@ -76,6 +77,10 @@ $(document).ready(function () {
             victimList.enqueue(victim);
         });
         console.log(data);
-        updateMemorialLoop();
+        nonNullCallback();
     }, "json");
+}
+
+$(document).ready(function () {
+    addNewVictims(updateMemorialLoop);
 });
