@@ -106,9 +106,7 @@ gulp.task("server", function () {
 gulp.task("hydrate", function () {
     return gulp.src("./hydrate.ts")
     .pipe(tsc({
-	noImplicitAny: true,
-        module: "AMD",
-	outFile: "./hydrate.ts"
+	noImplicitAny: true
      }))
     .pipe(gulp.dest("./"))
 });
