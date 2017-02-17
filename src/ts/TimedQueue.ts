@@ -93,6 +93,13 @@ class TimedQueue<T> {
     }
 
     /**
+     * @return {number} The number of items left in the queue.
+     */
+    public length(): number {
+        return this.queue.getLength();
+    }
+
+    /**
      * Watches the queue, waiting until the next items have to be processed,
      *   and removing them when that time comes.  Is recursive, but is
      *   asynchronous if objects do not need to be immediately processed.
