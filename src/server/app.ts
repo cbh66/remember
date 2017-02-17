@@ -81,7 +81,7 @@ function setupAppWithDb(db: mongo.Db) {
         }
         if (!before || !_.isFinite(before.getTime()) || before.getTime() > after.getTime()) {
             if (!quantity) {
-                quantity = 3;
+                quantity = 100;
             }
             before = addSeconds(after, quantity * DURATION);
         }

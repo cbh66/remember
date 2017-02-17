@@ -60,7 +60,7 @@ function updateMemorialLoop(): void {
         });
     }, waitTime);
     console.log("Length: " + victimList.getLength());
-    if (victimList.getLength() < 100) {
+    if (victimList.getLength() < 1000) {
         addNewVictims();
     }
 }
