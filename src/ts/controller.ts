@@ -33,66 +33,7 @@ function updateMemorial(victim: Victim): void {
     verticallyCenter($("#memorial"), $("#memorial-container"));
 }
 
-function addSeconds(date: Date, seconds: number): Date {
-    return new Date(date.getTime() + seconds*1000);
-}
-
-var testContent : Array<Victim> = [
-    {
-        name: "Aaron Burr",
-        event: "Natural Causes",
-        birthYear: 1756,
-        deathYear: 1836,
-        details: "Was a butt",
-        scheduledTime: addSeconds(new Date(), 1)
-    },
-    {
-        name: "Thomas Jefferson",
-        event: "Fiftieth Anniversary of US",
-        birthYear: 1743,
-        deathYear: 1826,
-        details: "Slaveowner and father of US",
-        scheduledTime: addSeconds(new Date(), 6)
-    },
-    {
-        name: "Button Gwinnett",
-        event: "Duel",
-        deathYear: 1777,
-        scheduledTime: addSeconds(new Date(), 11)
-    },
-    {
-        name: "John Hancock",
-        birthYear: 1737,
-        deathYear: 1793,
-        event: "Natural causes",
-        scheduledTime: addSeconds(new Date(), 16)
-    },
-    {
-        name: "Ben Franklin",
-        deathYear: 1790,
-        event: "Natural causes",
-        scheduledTime: addSeconds(new Date(), 21),
-        details: "Loved France; polymath"
-    },
-    {
-        name: "Elbridge Gerry",
-        birthYear: 1744,
-        deathYear: 1814,
-        event: "Died in Office",
-        scheduledTime: addSeconds(new Date(), 26),
-        details: "Only founding father buried in Washington DC"
-    },
-    {
-        name: "Josiah Bartlett",
-        birthYear: 1729,
-        deathYear: 1795,
-        event: "Natural causes",
-        scheduledTime: addSeconds(new Date(), 31)
-    }
-];
-
 let victimList: Queue<Victim> = new Queue<Victim>();
-_.each(testContent, (victim: Victim) => victimList.enqueue(victim));
 
 function updateMemorialLoop(): void {
     console.log("Starting loop");
@@ -118,8 +59,28 @@ function updateMemorialLoop(): void {
             }, 3 * 1000);
         });
     }, waitTime);
+    console.log("Length: " + victimList.getLength());
+    if (victimList.getLength() < 1000) {
+        addNewVictims();
+    }
+}
+
+function addNewVictims(callback?: ()=>void) {
+    const nonNullCallback = callback || _.noop;
+    console.log("trying to add...");
+    /* TODO: Retry on fail after some time and try again a few seconds
+     *     after a failure
+     */
+    $.get("api/schedule", function (data: Victim[]) {
+        _.each(data, function (victim: Victim) {
+            victim.scheduledTime = new Date(victim.scheduledTime);
+            victimList.enqueue(victim);
+        });
+        console.log(data);
+        nonNullCallback();
+    }, "json");
 }
 
 $(document).ready(function () {
-    updateMemorialLoop();
+    addNewVictims(updateMemorialLoop);
 });
