@@ -152,7 +152,7 @@ module TimedQueue {
      * A type for callbacks that can process T objects.
      */
     export interface CallbackType<T> {
-        (object: T): any;
+        (object: T): void;
     }
     /**
      * Options that can be specified for a TimedQueue.
