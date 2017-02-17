@@ -11,7 +11,8 @@
     "watch": "gulp watch",
     "docs": "gulp docs",
     "test": "mocha --opts config/mocha.opts && rm -rf test",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "npm run build",
+    "clean": "rm -rf *~ hydrate.js npm-debug.log build/ docs/ mongo/"
   },
   "engines": {
     "node": "6.9.1"
