@@ -96,6 +96,37 @@ describe('TimedQueue', function () {
         });
     });
 
+
+    describe('#length', function () {
+        it('should begin as zero', function () {
+            expect(new TimedQueue().length(), 'length').to.equal(0);
+        });
+
+        it('should increase with each addition', function () {
+            let timesToTest = 100;
+            let testQueue = new TimedQueue<number>();
+
+            _.times(timesToTest, function (i: number) {
+                testQueue.addLatest(i, millisecondsFrom(i+1, new Date()));
+                expect(testQueue.length()).to.equal(i+1);
+            });
+        });
+
+        it('should decrease with time', function () {
+            let timesToTest = 100;
+            let spy = sinon.spy();
+            let testQueue = new TimedQueue<number>();
+            _.times(timesToTest, function (i: number) {
+                testQueue.addLatest(i, millisecondsFrom(i+1, new Date()));
+            });
+            _.each(_.range(timesToTest, 0), function (i: number) {
+                expect(testQueue.length()).to.equal(i);
+                clock.tick(1);
+            });
+            expect(testQueue.length()).to.equal(0);
+        });
+    });
+
     describe('#getLatestScheduledTime', function () {
         it('should not exist if no dates were added', function () {
             expect(new TimedQueue().getLatestScheduledTime()).to.not.exist;
