@@ -111,8 +111,8 @@ gulp.task("hydrate", function () {
     .pipe(gulp.dest("./"))
 });
 
-gulp.task("copyHtml", function () {
-    return gulp.src("./src/**/*.html")
+gulp.task("copyStatic", function () {
+    return gulp.src("./src/**/*.{html,json}")
     .pipe(gulp.dest("./build"));
 });
 
@@ -136,13 +136,13 @@ gulp.task("startserver", ["server"], function () {
     });
 });
 
-gulp.task("dev", ["styles-dev", "js-dev", "copyHtml"]);
-gulp.task("default", ["server", "styles", "js", "copyHtml"]);
+gulp.task("dev", ["styles-dev", "js-dev", "copyStatic"]);
+gulp.task("default", ["server", "styles", "js", "copyStatic"]);
 gulp.task("run", ["default", "startdb", "startserver"]);
 gulp.task("watch", ["run"], function () {
     gulp.watch("./src/server/**/*.ts", ["server"]);
     gulp.watch("./src/ts/**/*.ts", ["js-dev"]);
     gulp.watch("./src/styles/**/*.scss", ["styles-dev"]);
-    gulp.watch("./src/**/*.html", ["copyHtml"]);
+    gulp.watch("./src/**/*.{html,json}", ["copyStatic"]);
     // startserver already watched for the server file
 });
