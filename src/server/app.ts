@@ -2,6 +2,7 @@ import * as express from "express";
 import * as mongo from "mongodb";
 import * as path from "path";
 import * as _ from "lodash";
+import * as Conf from "./Configuration";
 var MongoClient = mongo.MongoClient;
 var app = express();
 
@@ -9,7 +10,10 @@ var mongoUrl: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/loc
 
 var buildDir = path.resolve(__dirname + "/../");
 
-let DURATION = 5;
+let config = Conf.configFromFile(path.resolve(__dirname + "/../config.json"));
+console.log(config);
+let DURATION = (config.fadeInTime + config.fadeOutTime + config.duration)/1000;
+console.log(DURATION);
 
 function addSeconds(date: Date, seconds: number): Date {
     return new Date(date.getTime() + seconds*1000);
