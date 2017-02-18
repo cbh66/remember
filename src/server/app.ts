@@ -2,21 +2,15 @@ import * as express from "express";
 import * as mongo from "mongodb";
 import * as path from "path";
 import * as _ from "lodash";
-import * as ConfReader from "./Configuration";
+import getConfig from "./configuration";
 var MongoClient = mongo.MongoClient;
 var app = express();
-
-interface AppConfiguration {
-    fadeInTime: number,
-    fadeOutTime: number,
-    duration: number
-}
 
 var mongoUrl: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/local';
 
 var buildDir = path.resolve(__dirname + "/../");
 
-let config = ConfReader.configFromFile(path.resolve(__dirname + "/../config.json"));
+let config = getConfig(path.resolve(__dirname + "/../config.json"));
 console.log(config);
 let DURATION = (config.fadeInTime + config.fadeOutTime + config.duration)/1000;
 console.log(DURATION);
