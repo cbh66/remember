@@ -12,8 +12,6 @@ var buildDir = path.resolve(__dirname + "/../");
 
 let config = getConfig(path.resolve(__dirname + "/../config.json"));
 console.log(config);
-let DURATION = (config.fadeInTime + config.fadeOutTime + config.duration)/1000;
-console.log(DURATION);
 
 function addSeconds(date: Date, seconds: number): Date {
     return new Date(date.getTime() + seconds*1000);
@@ -25,7 +23,7 @@ function randomNameSample(names: mongo.Collection, quantity: number, response: a
         }]).toArray(function (err, docs) {
             docs = _.map(docs, function (doc, index) {
                 return _.extend(doc, {
-                    scheduledTime: addSeconds(startTime, (index * DURATION) + 1)
+                    scheduledTime: addSeconds(startTime, (index * config.duration/1000) + 1)
                 });
             });
             if (err) {
@@ -81,13 +79,13 @@ function setupAppWithDb(db: mongo.Db) {
         let before: Date;
         if (params.before) {
             before = new Date(params.before);
-            quantity = (before.getTime() - after.getTime()) / (DURATION*1000);
+            quantity = (before.getTime() - after.getTime()) / (config.duration);
         }
         if (!before || !_.isFinite(before.getTime()) || before.getTime() > after.getTime()) {
             if (!quantity) {
                 quantity = 100;
             }
-            before = addSeconds(after, quantity * DURATION);
+            before = addSeconds(after, quantity * config.duration/1000);
         }
 
         names.aggregate([{
@@ -95,7 +93,7 @@ function setupAppWithDb(db: mongo.Db) {
         }]).toArray(function (err, docs) {
             docs = _.map(docs, function (doc, index) {
                 return _.extend(doc, {
-                    scheduledTime: addSeconds(after, (index * DURATION) + 1)
+                    scheduledTime: addSeconds(after, (index * config.duration/1000) + 1)
                 });
             });
             if (err) {
