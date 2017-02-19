@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 
 
-interface AppConfiguration {
+export interface AppConfiguration {
     fadeInTime: number,
     fadeOutTime: number,
     duration: number
@@ -17,7 +17,7 @@ function isConfig(obj: jsonObject): obj is AppConfiguration {
     });
 }
 
-function getConfig(callback: (conf:AppConfiguration)=>void): void {
+export function getConfig(callback: (conf:AppConfiguration)=>void): void {
     $.get("config.json", function (config: jsonObject) {
         if (isConfig(config)) {
             callback(config);
