@@ -3,6 +3,7 @@
 /// <reference path="victim.d.ts" />
 import Queue from './Queue';
 import * as _ from 'lodash';
+import makeConfig from "./configuration";
 
 function verticallyCenter(inner: JQuery, container: JQuery): void  {
     let inHeight = inner.outerHeight();
@@ -56,7 +57,7 @@ function updateMemorialLoop(): void {
             setTimeout(function () {
                 console.log("Fading out");
                 $("#memorial").fadeTo(1 * 1000, 0, updateMemorialLoop);
-            }, 3 * 1000);
+            }, waitTime - 2000);
         });
     }, waitTime);
     console.log("Length: " + victimList.getLength());
@@ -82,5 +83,8 @@ function addNewVictims(callback?: ()=>void) {
 }
 
 $(document).ready(function () {
-    addNewVictims(updateMemorialLoop);
+    makeConfig(function (config) {
+        console.log(config);
+        addNewVictims(updateMemorialLoop);
+    });
 });
