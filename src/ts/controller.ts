@@ -74,7 +74,7 @@ function addNewVictims(config: AppConfiguration, callback?: (config: AppConfigur
     /* TODO: Retry on fail after some time and try again a few seconds
      *     after a failure
      */
-    $.get("api/schedule", function (data: Victim[]) {
+    $.get("api/schedule", {next: config.batchSize}, function (data: Victim[]) {
         _.each(data, function (victim: Victim) {
             victim.scheduledTime = new Date(victim.scheduledTime);
             victimList.enqueue(victim);
