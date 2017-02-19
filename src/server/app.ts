@@ -47,8 +47,12 @@ function setupAppWithDb(db: mongo.Db) {
     });
 
     app.get('/build/js/main.js', function(request, response) {
-      response.sendFile('js/main.min.js', {root: buildDir});
+        response.sendFile('js/main.min.js', {root: buildDir});
     });
+
+    app.get('/config.json', function (request, response) {
+        response.json(config);
+    })
 
     app.get('/api/all', function(request, response) {
         names.find({}).toArray(function (err, docs) {
