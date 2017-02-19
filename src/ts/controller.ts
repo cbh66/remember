@@ -63,7 +63,7 @@ function updateMemorialLoop(config: AppConfiguration): void {
         });
     }, waitTime);
     console.log("Length: " + victimList.getLength());
-    if (victimList.getLength() < 1000) {
+    if (victimList.getLength() < config.maxQueueSize) {
         addNewVictims(config);
     }
 }
