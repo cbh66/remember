@@ -10,7 +10,7 @@ var mongoUrl: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/loc
 
 var buildDir = path.resolve(__dirname + "/../");
 
-let config = getConfig(path.resolve(__dirname + "/../config.json"));
+let config = getConfig(path.resolve(__dirname + "/../config.json"), process.env);
 console.log(config);
 
 function addSeconds(date: Date, seconds: number): Date {
