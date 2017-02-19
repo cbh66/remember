@@ -1,6 +1,8 @@
 import * as _ from "lodash";
 import * as ConfReader from "./ConfigurationReader";
 
+const envVarConfigPrefix = "CONFIG_";
+
 ///// Note: the front-end's configuration is a subset of the back-end's.
 /////    To make available on the front end, update ts/configuration.ts
 interface AppConfRequired {
@@ -11,7 +13,7 @@ interface AppConfRequired {
     batchSize: number
 }
 
-let confDefaults: AppConfRequired = {
+const confDefaults: AppConfRequired = {
     fadeInTime: 0,
     fadeOutTime: 0,
     duration: 1000,
@@ -40,7 +42,7 @@ function camelCaseToSnakeCase(str: string): string {
 function overrideWithEnvironmentVariables(config: AppConfiguration, environment: any): AppConfiguration {
     if (_.isObject(environment)) {
         config = _.mapValues(config, function (val: any, key: string) {
-            let envKey = camelCaseToSnakeCase(key).toUpperCase();
+            let envKey = envVarConfigPrefix + camelCaseToSnakeCase(key).toUpperCase();
             if (_.has(environment, envKey)) {
                 if (_.isNumber(val)) {
                     return _.toNumber(environment[envKey]);
