@@ -2,6 +2,7 @@ import * as express from "express";
 import * as mongo from "mongodb";
 import * as path from "path";
 import * as _ from "lodash";
+import getConfig from "./configuration";
 var MongoClient = mongo.MongoClient;
 var app = express();
 
@@ -9,7 +10,8 @@ var mongoUrl: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/loc
 
 var buildDir = path.resolve(__dirname + "/../");
 
-let DURATION = 5;
+let config = getConfig(path.resolve(__dirname + "/../config.json"), process.env);
+console.log(config);
 
 function addSeconds(date: Date, seconds: number): Date {
     return new Date(date.getTime() + seconds*1000);
@@ -21,7 +23,7 @@ function randomNameSample(names: mongo.Collection, quantity: number, response: a
         }]).toArray(function (err, docs) {
             docs = _.map(docs, function (doc, index) {
                 return _.extend(doc, {
-                    scheduledTime: addSeconds(startTime, (index * DURATION) + 1)
+                    scheduledTime: addSeconds(startTime, (index * config.duration/1000) + 1)
                 });
             });
             if (err) {
@@ -45,8 +47,12 @@ function setupAppWithDb(db: mongo.Db) {
     });
 
     app.get('/build/js/main.js', function(request, response) {
-      response.sendFile('js/main.min.js', {root: buildDir});
+        response.sendFile('js/main.min.js', {root: buildDir});
     });
+
+    app.get('/config.json', function (request, response) {
+        response.json(config);
+    })
 
     app.get('/api/all', function(request, response) {
         names.find({}).toArray(function (err, docs) {
@@ -77,13 +83,13 @@ function setupAppWithDb(db: mongo.Db) {
         let before: Date;
         if (params.before) {
             before = new Date(params.before);
-            quantity = (before.getTime() - after.getTime()) / (DURATION*1000);
+            quantity = (before.getTime() - after.getTime()) / (config.duration);
         }
         if (!before || !_.isFinite(before.getTime()) || before.getTime() > after.getTime()) {
             if (!quantity) {
                 quantity = 100;
             }
-            before = addSeconds(after, quantity * DURATION);
+            before = addSeconds(after, quantity * config.duration/1000);
         }
 
         names.aggregate([{
@@ -91,7 +97,7 @@ function setupAppWithDb(db: mongo.Db) {
         }]).toArray(function (err, docs) {
             docs = _.map(docs, function (doc, index) {
                 return _.extend(doc, {
-                    scheduledTime: addSeconds(after, (index * DURATION) + 1)
+                    scheduledTime: addSeconds(after, (index * config.duration/1000) + 1)
                 });
             });
             if (err) {

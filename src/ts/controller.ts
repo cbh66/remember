@@ -3,6 +3,7 @@
 /// <reference path="victim.d.ts" />
 import Queue from './Queue';
 import * as _ from 'lodash';
+import {getConfig, AppConfiguration} from "./configuration";
 
 function verticallyCenter(inner: JQuery, container: JQuery): void  {
     let inHeight = inner.outerHeight();
@@ -35,7 +36,7 @@ function updateMemorial(victim: Victim): void {
 
 let victimList: Queue<Victim> = new Queue<Victim>();
 
-function updateMemorialLoop(): void {
+function updateMemorialLoop(config: AppConfiguration): void {
     console.log("Starting loop");
     let currentVictim = victimList.dequeue();
     if (!currentVictim) {
@@ -51,36 +52,40 @@ function updateMemorialLoop(): void {
     }
     setTimeout(function () {
         console.log("Fading in");
-        $("#memorial").fadeTo(1 * 1000, 1, function () {
+        $("#memorial").fadeTo(config.fadeInTime, 1, function () {
             console.log("Faded in");
             setTimeout(function () {
                 console.log("Fading out");
-                $("#memorial").fadeTo(1 * 1000, 0, updateMemorialLoop);
-            }, 3 * 1000);
+                $("#memorial").fadeTo(config.fadeOutTime, 0, function () {
+                    updateMemorialLoop(config);
+                });
+            }, config.duration - config.fadeInTime - config.fadeOutTime);
         });
     }, waitTime);
     console.log("Length: " + victimList.getLength());
-    if (victimList.getLength() < 1000) {
-        addNewVictims();
+    if (victimList.getLength() < config.maxQueueSize) {
+        addNewVictims(config);
     }
 }
 
-function addNewVictims(callback?: ()=>void) {
+function addNewVictims(config: AppConfiguration, callback?: (config: AppConfiguration)=>void) {
     const nonNullCallback = callback || _.noop;
     console.log("trying to add...");
     /* TODO: Retry on fail after some time and try again a few seconds
      *     after a failure
      */
-    $.get("api/schedule", function (data: Victim[]) {
+    $.get("api/schedule", {next: config.batchSize}, function (data: Victim[]) {
         _.each(data, function (victim: Victim) {
             victim.scheduledTime = new Date(victim.scheduledTime);
             victimList.enqueue(victim);
         });
         console.log(data);
-        nonNullCallback();
+        nonNullCallback(config);
     }, "json");
 }
 
 $(document).ready(function () {
-    addNewVictims(updateMemorialLoop);
+    getConfig(function (config: AppConfiguration) {
+        addNewVictims(config, updateMemorialLoop);
+    });
 });
