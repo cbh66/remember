@@ -146,9 +146,10 @@ gulp.task("startserver", ["server"], function () {
     });
 });
 
-gulp.task("dev", ["styles-dev", "js-dev", "copyStatic"]);
-gulp.task("default", ["server", "styles", "copyStatic"]);
+gulp.task("dev", ["server", "styles-dev", "js-dev", "copyStatic"]);
+gulp.task("default", ["server", "styles", "js", "copyStatic"]);
 gulp.task("run", ["default", "startdb", "startserver"]);
+gulp.task("run-dev", ["dev", "startdb", "startserver"]);
 gulp.task("watch", ["run"], function () {
     gulp.watch("./src/server/**/*.ts", ["server"]);
     gulp.watch("./src/ts/**/*.ts", ["js-dev"]);
