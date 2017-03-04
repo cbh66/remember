@@ -16,6 +16,11 @@ var tsServerProject = tsc.createProject('config/tsserver.json');
 
 var mongoPath = "./mongo";
 
+function onCompilationError(error) {
+    console.error(error.toString());
+    this.emit('end');
+}
+
 function handleOutput(err, stdout, stderr) {
     if (err) {
         throw err;
@@ -40,7 +45,8 @@ gulp.task("docs", function () {
 	    target: "es3",
 	    out: "docs/",
 	    name: "Together We Remember"
-        }));
+        }))
+	.on('error', onCompilationError);
 });
 
 gulp.task("styles", function () {
@@ -74,6 +80,7 @@ gulp.task("js-dev", function () {
     })
     .plugin(tsify, {project: "config/tsdev.json"})
     .bundle()
+    .on('error', onCompilationError)
     .pipe(source('main.js'))
     .pipe(gulp.dest("build/js"));
 });
@@ -88,6 +95,7 @@ gulp.task("js", function () {
     })
     .plugin(tsify, {project: "config/tsbuild.json"})
     .bundle()
+    .on('error', onCompilationError)
     .pipe(source('main.min.js'))
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))
@@ -99,6 +107,7 @@ gulp.task("js", function () {
 gulp.task("server", function () {
     return tsServerProject.src()
     .pipe(tsServerProject())
+    .on('error', onCompilationError)
     .pipe(gulp.dest('./build/server'));
 });
 
@@ -108,6 +117,7 @@ gulp.task("hydrate", function () {
     .pipe(tsc({
 	noImplicitAny: true
      }))
+    .on('error', onCompilationError)
     .pipe(gulp.dest("./"))
 });
 
@@ -137,7 +147,7 @@ gulp.task("startserver", ["server"], function () {
 });
 
 gulp.task("dev", ["styles-dev", "js-dev", "copyStatic"]);
-gulp.task("default", ["server", "styles", "js", "copyStatic"]);
+gulp.task("default", ["server", "styles", "copyStatic"]);
 gulp.task("run", ["default", "startdb", "startserver"]);
 gulp.task("watch", ["run"], function () {
     gulp.watch("./src/server/**/*.ts", ["server"]);
