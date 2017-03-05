@@ -34,22 +34,29 @@ function updateMemorial(victim: Victim): void {
     verticallyCenter($("#memorial"), $("#memorial-container"));
 }
 
-let config: AppConfiguration|null = null;
+enum ActionType {
+    fadeIn,
+    fadeOut
+}
+interface Action {
+    type: ActionType,
+    victim?: Victim,  // if action type is fadeIn
+    config: AppConfiguration
+}
 
-let victimList: TimedQueue<Victim> = new TimedQueue<Victim>({
-    callback: (victim: Victim): void => {
-        if (!config) return;
-        console.log("Fading out");
-        $("#memorial").fadeTo(config.fadeOutTime, 0, function () {
-            console.log("Faded out");
-            if (!config) return;
-            updateMemorial(victim);
+let actionQueue: TimedQueue<Action> = new TimedQueue<Action>({
+    callback: (action: Action): void => {
+        if (action.type === ActionType.fadeOut) {
+            console.log("Fading out");
+            $("#memorial").fadeTo(action.config.fadeOutTime, 0)
+        } else if (action.victim && action.type === ActionType.fadeIn) {
+            updateMemorial(action.victim);
             console.log("Fading in");
-            $("#memorial").fadeTo(config.fadeInTime, 1);
-        });
+            $("#memorial").fadeTo(action.config.fadeInTime, 1);
+        }
 
-        if (victimList.length() < config.maxQueueSize) {
-            addNewVictims(config);
+        if (actionQueue.length() < action.config.maxQueueSize*2) {
+            addNewVictims(action.config);
         }
     }
 });
@@ -96,10 +103,18 @@ function addNewVictims(config: AppConfiguration, callback?: (config: AppConfigur
         _.each(data, function (victim: Victim) {
             victim.scheduledTime = new Date(victim.scheduledTime);
             const fadeOutPrev = new Date(victim.scheduledTime.getTime() - config.fadeOutTime)
-            if (victim.scheduledTime > victimList.getLatestScheduledTime()) {
-                victimList.addLatest(victim, fadeOutPrev);
+            if (victim.scheduledTime > actionQueue.getLatestScheduledTime()) {
+                actionQueue.addLatest({
+                    type: ActionType.fadeOut,
+                    config
+                }, fadeOutPrev);
+                actionQueue.addLatest({
+                    type: ActionType.fadeIn,
+                    victim,
+                    config
+                }, victim.scheduledTime);
             } else {
-                console.warn("EARLIER:", victim.scheduledTime, victimList.getLatestScheduledTime());
+                console.warn("EARLIER:", victim.scheduledTime, actionQueue.getLatestScheduledTime());
             }
         });
         console.log(data);
@@ -109,7 +124,6 @@ function addNewVictims(config: AppConfiguration, callback?: (config: AppConfigur
 
 $(document).ready(function () {
     getConfig(function (conf: AppConfiguration) {
-        config = conf;
         addNewVictims(conf/*, updateMemorialLoop*/);
     });
 });
