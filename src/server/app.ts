@@ -1,8 +1,10 @@
+/// <reference path="../ts/victim.d.ts" />
 import * as express from "express";
 import * as mongo from "mongodb";
 import * as path from "path";
 import * as _ from "lodash";
 import getConfig from "./configuration";
+import TimedQueue from "../ts/TimedQueue"
 var MongoClient = mongo.MongoClient;
 var app = express();
 
@@ -37,6 +39,7 @@ function randomNameSample(names: mongo.Collection, quantity: number, response: a
 
 function setupAppWithDb(db: mongo.Db) {
     let names = db.collection('names');
+    let cachedSchedule = new TimedQueue<Victim>();
     app.set('port', (process.env.PORT || 5000));
 
     app.use(express.static(__dirname));

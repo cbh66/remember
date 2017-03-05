@@ -101,6 +101,7 @@ function addNewVictims(config: AppConfiguration, callback?: (config: AppConfigur
      */
     const request = {
         next: config.batchSize,
+        // TODO: max of latest time and current time
         after: actionQueue.getLatestScheduledTime()
     }
     $.get("api/schedule", request, function (data: Victim[]) {
