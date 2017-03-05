@@ -34,19 +34,18 @@ function updateMemorial(victim: Victim): void {
     verticallyCenter($("#memorial"), $("#memorial-container"));
 }
 
+let config: AppConfiguration|null = null;
+
 let victimList: TimedQueue<Victim> = new TimedQueue<Victim>({
     callback: (victim: Victim): void => {
         if (!config) return;
-        updateMemorial(victim);
-        console.log("Fading in");
-        $("#memorial").fadeTo(config.fadeInTime, 1, function () {
-            console.log("Faded in");
+        console.log("Fading out");
+        $("#memorial").fadeTo(config.fadeOutTime, 0, function () {
+            console.log("Faded out");
             if (!config) return;
-            setTimeout(function () {
-                console.log("Fading out");
-                if (!config) return;
-                $("#memorial").fadeTo(config.fadeOutTime, 0);
-            }, config.duration - config.fadeInTime - config.fadeOutTime);
+            updateMemorial(victim);
+            console.log("Fading in");
+            $("#memorial").fadeTo(config.fadeInTime, 1);
         });
 
         if (victimList.length() < config.maxQueueSize) {
@@ -54,9 +53,6 @@ let victimList: TimedQueue<Victim> = new TimedQueue<Victim>({
         }
     }
 });
-
-let config: AppConfiguration|null = null;
-
 /*
 function updateMemorialLoop(config: AppConfiguration): void {
     console.log("Starting loop");
@@ -99,8 +95,9 @@ function addNewVictims(config: AppConfiguration, callback?: (config: AppConfigur
     $.get("api/schedule", {next: config.batchSize}, function (data: Victim[]) {
         _.each(data, function (victim: Victim) {
             victim.scheduledTime = new Date(victim.scheduledTime);
-            if (victim.scheduledTime >= victimList.getLatestScheduledTime()) {
-                victimList.addLatest(victim, victim.scheduledTime);
+            const fadeOutPrev = new Date(victim.scheduledTime.getTime() - config.fadeOutTime)
+            if (victim.scheduledTime > victimList.getLatestScheduledTime()) {
+                victimList.addLatest(victim, fadeOutPrev);
             } else {
                 console.warn("EARLIER:", victim.scheduledTime, victimList.getLatestScheduledTime());
             }
