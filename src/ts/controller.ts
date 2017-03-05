@@ -1,7 +1,7 @@
 /// <reference path="lib/jquery.d.ts" />
 /// <reference path="Queue.ts" />
 /// <reference path="victim.d.ts" />
-import Queue from './Queue';
+import TimedQueue from './TimedQueue';
 import * as _ from 'lodash';
 import {getConfig, AppConfiguration} from "./configuration";
 
@@ -34,8 +34,30 @@ function updateMemorial(victim: Victim): void {
     verticallyCenter($("#memorial"), $("#memorial-container"));
 }
 
-let victimList: Queue<Victim> = new Queue<Victim>();
+let victimList: TimedQueue<Victim> = new TimedQueue<Victim>({
+    callback: (victim: Victim): void => {
+        if (!config) return;
+        updateMemorial(victim);
+        console.log("Fading in");
+        $("#memorial").fadeTo(config.fadeInTime, 1, function () {
+            console.log("Faded in");
+            if (!config) return;
+            setTimeout(function () {
+                console.log("Fading out");
+                if (!config) return;
+                $("#memorial").fadeTo(config.fadeOutTime, 0);
+            }, config.duration - config.fadeInTime - config.fadeOutTime);
+        });
 
+        if (victimList.length() < config.maxQueueSize) {
+            addNewVictims(config);
+        }
+    }
+});
+
+let config: AppConfiguration|null = null;
+
+/*
 function updateMemorialLoop(config: AppConfiguration): void {
     console.log("Starting loop");
     let currentVictim = victimList.dequeue();
@@ -67,7 +89,7 @@ function updateMemorialLoop(config: AppConfiguration): void {
         addNewVictims(config);
     }
 }
-
+*/
 function addNewVictims(config: AppConfiguration, callback?: (config: AppConfiguration)=>void) {
     const nonNullCallback = callback || _.noop;
     console.log("trying to add...");
@@ -77,7 +99,11 @@ function addNewVictims(config: AppConfiguration, callback?: (config: AppConfigur
     $.get("api/schedule", {next: config.batchSize}, function (data: Victim[]) {
         _.each(data, function (victim: Victim) {
             victim.scheduledTime = new Date(victim.scheduledTime);
-            victimList.enqueue(victim);
+            if (victim.scheduledTime >= victimList.getLatestScheduledTime()) {
+                victimList.addLatest(victim, victim.scheduledTime);
+            } else {
+                console.warn("EARLIER:", victim.scheduledTime, victimList.getLatestScheduledTime());
+            }
         });
         console.log(data);
         nonNullCallback(config);
@@ -85,7 +111,8 @@ function addNewVictims(config: AppConfiguration, callback?: (config: AppConfigur
 }
 
 $(document).ready(function () {
-    getConfig(function (config: AppConfiguration) {
-        addNewVictims(config, updateMemorialLoop);
+    getConfig(function (conf: AppConfiguration) {
+        config = conf;
+        addNewVictims(conf/*, updateMemorialLoop*/);
     });
 });
