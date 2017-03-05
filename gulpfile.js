@@ -42,7 +42,7 @@ gulp.task("docs", function () {
         .src(["src/**/*.ts", "!src/**/*.spec.ts"])
         .pipe(typedoc({
 	    module: "commonjs",
-	    target: "es3",
+	    target: "es6",
 	    out: "docs/",
 	    name: "Together We Remember"
         }))
