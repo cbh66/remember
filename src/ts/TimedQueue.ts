@@ -31,7 +31,7 @@ class TimedQueue<T> {
      * is empty).
      * @type {Date}
      */
-    protected latestTime: Date = null;
+    protected latestTime: Date|null = null;
     /**
      * The function called when an object's time is up.  It is passed the
      * object; any return value is ignored.
@@ -89,7 +89,7 @@ class TimedQueue<T> {
      * @return {Date} The latest time an object has been scheduled for.
      */
     public getLatestScheduledTime(): Date {
-        return this.latestTime;
+        return this.latestTime || new Date();
     }
 
     /**
