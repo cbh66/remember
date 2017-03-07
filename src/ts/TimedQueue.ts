@@ -88,8 +88,8 @@ class TimedQueue<T> {
      * Returns the latest time any object has been scheduled for so far.
      * @return {Date} The latest time an object has been scheduled for.
      */
-    public getLatestScheduledTime(): Date {
-        return this.latestTime || new Date();
+    public getLatestScheduledTime(): Date|null {
+        return this.latestTime;
     }
 
     /**

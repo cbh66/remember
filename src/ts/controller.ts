@@ -58,6 +58,7 @@ let actionQueue: TimedQueue<Action> = new TimedQueue<Action>({
         if (actionQueue.length() < action.config.maxQueueSize*2) {
             addNewVictims(action.config);
         }
+        console.log(_.map(actionQueue.toArray(), (elem) => elem[1].type));
     }
 });
 /*
@@ -102,7 +103,7 @@ function addNewVictims(config: AppConfiguration, callback?: (config: AppConfigur
     const request = {
         next: config.batchSize,
         // TODO: max of latest time and current time
-        after: actionQueue.getLatestScheduledTime()
+        after: actionQueue.getLatestScheduledTime() || new Date()
     }
     $.get("api/schedule", request, function (data: Victim[]) {
         _.each(data, function (victim: Victim) {
