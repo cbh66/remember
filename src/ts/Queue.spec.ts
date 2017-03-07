@@ -146,7 +146,7 @@ describe('Queue', function () {
             expect(new Queue().toArray()).to.be.empty;
         });
 
-        it('should have length equal to the queue\'s', function () {
+        it('should have the same elements as are in the queue', function () {
             const max = 1000;
             let testQueue = new Queue<number>();
             _.times(max, function (num: number) {
@@ -157,9 +157,13 @@ describe('Queue', function () {
             _.times(max, function (num: number) {
                 expect(arr[num]).to.equal(num);
             });
+            let prevArr = arr;
             _.each(_.range(max, 0), function (i: number) {
+                expect(prevArr[i-1]).to.equal(max-1);
+                expect(prevArr[0]).to.equal(max-i)
                 testQueue.dequeue();
-                expect(testQueue.toArray()).to.have.lengthOf(i - 1);
+                prevArr = testQueue.toArray();
+                expect(prevArr).to.have.lengthOf(i - 1);
             });
         });
     });
