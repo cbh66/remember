@@ -99,6 +99,10 @@ class TimedQueue<T> {
         return this.queue.getLength();
     }
 
+    public toArray(amount?: number): [Date, T][] {
+        return this.queue.toArray(amount);
+    }
+
     /**
      * Watches the queue, waiting until the next items have to be processed,
      *   and removing them when that time comes.  Is recursive, but is

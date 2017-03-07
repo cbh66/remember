@@ -127,6 +127,33 @@ describe('TimedQueue', function () {
         });
     });
 
+    describe('#toArray', function () {
+        it('should start out empty', function () {
+            expect(new TimedQueue().toArray()).to.be.empty;
+        });
+
+        it('should have the same elements as are in the queue', function () {
+            const max = 1000;
+            let testQueue = new TimedQueue<number>();
+            _.times(max, function (i: number) {
+                testQueue.addLatest(i, millisecondsFrom(i+1, new Date()));
+                expect(testQueue.toArray()).to.have.lengthOf(i+1);
+            });
+            const arr = testQueue.toArray();
+            _.times(max, function (num: number) {
+                expect(arr[num][1]).to.equal(num);
+            });
+            let prevArr = arr;
+            _.each(_.range(max, 0), function (i: number) {
+                expect(prevArr[i-1][1]).to.equal(max-1);
+                expect(prevArr[0][1]).to.equal(max-i)
+                clock.tick(1);
+                prevArr = testQueue.toArray();
+                expect(prevArr).to.have.lengthOf(i - 1);
+            });
+        });
+    });
+
     describe('#getLatestScheduledTime', function () {
         it('should not exist if no dates were added', function () {
             expect(new TimedQueue().getLatestScheduledTime()).to.not.exist;
