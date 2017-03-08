@@ -99,6 +99,11 @@ class TimedQueue<T> {
         return this.queue.getLength();
     }
 
+    /**
+     * Creates an array of the upcoming scheduled objects.  If an amount is
+     * given, the array is truncated to that size.
+     * @param {number} amount
+     */
     public toArray(amount?: number): [Date, T][] {
         return this.queue.toArray(amount);
     }
