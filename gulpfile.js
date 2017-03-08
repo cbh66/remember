@@ -70,7 +70,7 @@ gulp.task("styles-dev", function () {
 	.pipe(gulp.dest('build/css'));
 });
 
-gulp.task("js-dev", function () {
+gulp.task("bundle-dev", function () {
     return browserify({
         basedir: '.',
         debug: true,
@@ -85,7 +85,7 @@ gulp.task("js-dev", function () {
     .pipe(gulp.dest("build/js"));
 });
 
-gulp.task("js", function () {
+gulp.task("bundle", function () {
     return browserify({
 	    basedir: '.',
 	    debug: false,
@@ -104,11 +104,11 @@ gulp.task("js", function () {
     .pipe(gulp.dest('build/js'));
 });
 
-gulp.task("server", function () {
+gulp.task("ts", function () {
     return tsServerProject.src()
     .pipe(tsServerProject())
     .on('error', onCompilationError)
-    .pipe(gulp.dest('./build/server'));
+    .pipe(gulp.dest('./build/ts'));
 });
 
 
@@ -126,7 +126,7 @@ gulp.task("copyStatic", function () {
     .pipe(gulp.dest("./build"));
 });
 
-gulp.task("startdb", ["server", "hydrate"], function () {
+gulp.task("startdb", ["hydrate"], function () {
     if (!fs.existsSync(mongoPath)) {
 	fs.mkdirSync(mongoPath);
     }
@@ -134,25 +134,24 @@ gulp.task("startdb", ["server", "hydrate"], function () {
     setTimeout(function () {runAsync("node hydrate.js");}, 5000);
 });
 
-
-gulp.task("startserver", ["server"], function () {
+gulp.task("startserver", ["ts"], function () {
     return nodemon({
-        script: "build/server/app.js",
-        watch: "build/server/app.js"
-    }).on("restart", function () {
+        script: "build/ts/server/app.js",
+	watch: "build/ts/**/*"
+    })
+    .on("restart", function () {
         console.log("Server restarting....");
     }).on("crash", function () {
         console.error("Server has crashed.")
     });
 });
 
-gulp.task("dev", ["server", "styles-dev", "js-dev", "copyStatic"]);
-gulp.task("default", ["server", "styles", "js", "copyStatic"]);
+gulp.task("dev", ["ts", "styles-dev", "bundle-dev", "copyStatic"]);
+gulp.task("default", ["ts", "styles", "bundle", "copyStatic"]);
 gulp.task("run", ["default", "startdb", "startserver"]);
 gulp.task("run-dev", ["dev", "startdb", "startserver"]);
 gulp.task("watch", ["run"], function () {
-    gulp.watch("./src/server/**/*.ts", ["server"]);
-    gulp.watch("./src/ts/**/*.ts", ["js-dev"]);
+    gulp.watch("./src/**/*.ts", ["ts", "bundle-dev"]);
     gulp.watch("./src/styles/**/*.scss", ["styles-dev"]);
     gulp.watch("./src/**/*.{html,json}", ["copyStatic"]);
     // startserver already watched for the server file
