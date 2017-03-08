@@ -1,16 +1,18 @@
+/// <reference path="../victim.d.ts" />
 import * as express from "express";
 import * as mongo from "mongodb";
 import * as path from "path";
 import * as _ from "lodash";
 import getConfig from "./configuration";
+import TimedQueue from "../TimedQueue"
 var MongoClient = mongo.MongoClient;
 var app = express();
 
-var mongoUrl: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/local';
+const mongoUrl: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/local';
 
-var buildDir = path.resolve(__dirname + "/../");
+const buildDir = path.resolve(__dirname + "/../../");
 
-let config = getConfig(path.resolve(__dirname + "/../config.json"), process.env);
+const config = getConfig(path.resolve(__dirname + "/../../config.json"), process.env);
 console.log(config);
 
 function addSeconds(date: Date, seconds: number): Date {
@@ -35,8 +37,14 @@ function randomNameSample(names: mongo.Collection, quantity: number, response: a
         });
 }
 
+function valuesFromCache<T>(arr: [Date, T][], after: Date, qty: number): T[] {
+    const index = _.sortedIndexBy<[Date, T]>(arr, [after, null], item => item[0]);
+    return _.map(arr.slice(index, index + qty), item => item[1]);
+}
+
 function setupAppWithDb(db: mongo.Db) {
     let names = db.collection('names');
+    let cachedSchedule = new TimedQueue<Victim>();
     app.set('port', (process.env.PORT || 5000));
 
     app.use(express.static(__dirname));
@@ -91,22 +99,47 @@ function setupAppWithDb(db: mongo.Db) {
             }
             before = addSeconds(after, quantity * config.duration/1000);
         }
+        console.log("quantity requested", quantity)
 
-        names.aggregate([{
-            "$sample": { "size": quantity }
-        }]).toArray(function (err, docs) {
-            docs = _.map(docs, function (doc, index) {
-                return _.extend(doc, {
-                    scheduledTime: addSeconds(after, (index * config.duration/1000) + 1)
+        const cachedValues = valuesFromCache(cachedSchedule.toArray(), after, quantity);
+        const amountRemaining = quantity - cachedValues.length;
+
+        if (amountRemaining) { // cache miss; add to cache
+            /* Possible multiple misses happen concurrently: then the cache
+             * will be added to n times; but each insertion to the cache should
+             * still be atomic.
+             */
+            console.log("MISS!", "before", cachedValues.length);
+            // Possibly increase size to make the call to the db worth it
+            names.aggregate([{
+                "$sample": {
+                    "size": Math.max(amountRemaining, config.batchSize)
+                }
+            }]).toArray(function (err, docs) {
+                // Ensures we always add to end, with or without concurrency
+                const baseTime = cachedSchedule.getLatestScheduledTime() || new Date();
+                docs = _.map(docs, function (doc, index) {
+                    return _.extend(doc, {
+                        scheduledTime: addSeconds(baseTime, (index+1) * config.duration/1000)
+                    });
                 });
+                _.each(docs, doc => cachedSchedule.addLatest(doc, doc.scheduledTime))
+                if (err) {
+                    response.status(500).end();
+                } else {
+                    response.status(200);
+                    response.send([
+                        ...cachedValues,
+                        ..._.take(docs, amountRemaining)
+                    ]);
+                }
+                console.log("MISS!", "after", cachedSchedule.length());
             });
-            if (err) {
-                response.status(500).end();
-            } else {
-                response.status(200);
-                response.send(docs);
-            }
-        });
+        } else { // cache hit
+            console.log("HIT!", cachedValues.length);
+            response.status(200);
+            response.send(cachedValues);
+        }
     });
 }
 
