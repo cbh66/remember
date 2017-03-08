@@ -1,18 +1,18 @@
-/// <reference path="../ts/victim.d.ts" />
+/// <reference path="../victim.d.ts" />
 import * as express from "express";
 import * as mongo from "mongodb";
 import * as path from "path";
 import * as _ from "lodash";
 import getConfig from "./configuration";
-import TimedQueue from "../ts/TimedQueue"
+//import TimedQueue from "../ts/TimedQueue"
 var MongoClient = mongo.MongoClient;
 var app = express();
 
-var mongoUrl: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/local';
+const mongoUrl: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/local';
 
-var buildDir = path.resolve(__dirname + "/../");
+const buildDir = path.resolve(__dirname + "/../../");
 
-let config = getConfig(path.resolve(__dirname + "/../config.json"), process.env);
+const config = getConfig(path.resolve(__dirname + "/../../config.json"), process.env);
 console.log(config);
 
 function addSeconds(date: Date, seconds: number): Date {
@@ -39,7 +39,7 @@ function randomNameSample(names: mongo.Collection, quantity: number, response: a
 
 function setupAppWithDb(db: mongo.Db) {
     let names = db.collection('names');
-    let cachedSchedule = new TimedQueue<Victim>();
+    //let cachedSchedule = new TimedQueue<Victim>();
     app.set('port', (process.env.PORT || 5000));
 
     app.use(express.static(__dirname));
