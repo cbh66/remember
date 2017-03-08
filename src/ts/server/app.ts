@@ -102,17 +102,19 @@ function setupAppWithDb(db: mongo.Db) {
         console.log("quantity requested", quantity)
 
         const cachedValues = valuesFromCache(cachedSchedule.toArray(), after, quantity);
+        const amountRemaining = quantity - cachedValues.length;
 
-        if (cachedValues.length < quantity) { // cache miss; add to cache
+        if (amountRemaining) { // cache miss; add to cache
             /* Possible multiple misses happen concurrently: then the cache
              * will be added to n times; but each insertion to the cache should
              * still be atomic.
              */
             console.log("MISS!", "before", cachedValues.length);
             // Possibly increase size to make the call to the db worth it
-            quantity = Math.max(quantity, config.batchSize);
             names.aggregate([{
-                "$sample": { "size": quantity }
+                "$sample": {
+                    "size": Math.max(amountRemaining, config.batchSize)
+                }
             }]).toArray(function (err, docs) {
                 // Ensures we always add to end, with or without concurrency
                 const baseTime = cachedSchedule.getLatestScheduledTime() || new Date();
@@ -126,7 +128,10 @@ function setupAppWithDb(db: mongo.Db) {
                     response.status(500).end();
                 } else {
                     response.status(200);
-                    response.send(docs);
+                    response.send([
+                        ...cachedValues,
+                        ..._.take(docs, amountRemaining)
+                    ]);
                 }
                 console.log("MISS!", "after", cachedSchedule.length());
             });
