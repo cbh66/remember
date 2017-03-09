@@ -31,7 +31,7 @@ class TimedQueue<T> {
      * is empty).
      * @type {Date}
      */
-    protected latestTime: Date = null;
+    protected latestTime: Date|null = null;
     /**
      * The function called when an object's time is up.  It is passed the
      * object; any return value is ignored.
@@ -88,8 +88,24 @@ class TimedQueue<T> {
      * Returns the latest time any object has been scheduled for so far.
      * @return {Date} The latest time an object has been scheduled for.
      */
-    public getLatestScheduledTime(): Date {
+    public getLatestScheduledTime(): Date|null {
         return this.latestTime;
+    }
+
+    /**
+     * @return {number} The number of items left in the queue.
+     */
+    public length(): number {
+        return this.queue.getLength();
+    }
+
+    /**
+     * Creates an array of the upcoming scheduled objects.  If an amount is
+     * given, the array is truncated to that size.
+     * @param {number} amount
+     */
+    public toArray(amount?: number): [Date, T][] {
+        return this.queue.toArray(amount);
     }
 
     /**
@@ -145,7 +161,7 @@ module TimedQueue {
      * A type for callbacks that can process T objects.
      */
     export interface CallbackType<T> {
-        (object: T): any;
+        (object: T): void;
     }
     /**
      * Options that can be specified for a TimedQueue.

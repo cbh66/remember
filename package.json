@@ -1,17 +1,18 @@
 {
   "name": "remember",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "An online memorial page for victims of genocide.",
   "main": "index.html",
   "scripts": {
-    "start": "node build/server/app.js",
-    "start-dev": "gulp run",
+    "start": "node build/ts/server/app.js",
+    "start-dev": "gulp run-dev",
     "build": "gulp",
     "build-dev": "gulp dev",
     "watch": "gulp watch",
     "docs": "gulp docs",
     "test": "mocha --opts config/mocha.opts && rm -rf test",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "npm run build",
+    "clean": "rm -rf *~ hydrate.js npm-debug.log build/ docs/ mongo/"
   },
   "engines": {
     "node": "6.9.1"

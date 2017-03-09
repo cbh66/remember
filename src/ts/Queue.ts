@@ -66,4 +66,20 @@ export default class Queue<T> {
     public peek(): T | undefined {
         return (this.queue.length > 0) ? this.queue[this.offset] : undefined;
     }
+
+    /**
+     * Returns a copy of all enqueued elements as an array, where those at
+     * smaller indices were inserted earlier.  If an amount is included, the
+     * array is truncated to that size.
+     * @param {number} amount
+     */
+    public toArray(amount?: number): T[] {
+        if (amount === 0) return [];
+        if (amount) {
+            amount = Math.min(amount, this.getLength());
+        } else {
+            amount = this.getLength();
+        }
+        return this.queue.slice(this.offset, this.offset + amount);
+    }
 }

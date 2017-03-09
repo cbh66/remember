@@ -1,0 +1,7 @@
+{
+    "fadeInTime": 1000,
+    "fadeOutTime": 1000,
+    "duration": 5000,
+    "maxQueueSize": 10000,
+    "batchSize": 1000
+}

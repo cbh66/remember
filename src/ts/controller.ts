@@ -1,8 +1,9 @@
 /// <reference path="lib/jquery.d.ts" />
 /// <reference path="Queue.ts" />
 /// <reference path="victim.d.ts" />
-import Queue from './Queue';
+import TimedQueue from './TimedQueue';
 import * as _ from 'lodash';
+import {getConfig, AppConfiguration} from "./configuration";
 
 function verticallyCenter(inner: JQuery, container: JQuery): void  {
     let inHeight = inner.outerHeight();
@@ -33,9 +34,35 @@ function updateMemorial(victim: Victim): void {
     verticallyCenter($("#memorial"), $("#memorial-container"));
 }
 
-let victimList: Queue<Victim> = new Queue<Victim>();
+enum ActionType {
+    fadeIn,
+    fadeOut
+}
+interface Action {
+    type: ActionType,
+    victim?: Victim,  // if action type is fadeIn
+    config: AppConfiguration
+}
 
-function updateMemorialLoop(): void {
+let actionQueue: TimedQueue<Action> = new TimedQueue<Action>({
+    callback: (action: Action): void => {
+        if (action.type === ActionType.fadeOut) {
+            console.log("Fading out");
+            $("#memorial").fadeTo(action.config.fadeOutTime, 0)
+        } else if (action.victim && action.type === ActionType.fadeIn) {
+            updateMemorial(action.victim);
+            console.log("Fading in");
+            $("#memorial").fadeTo(action.config.fadeInTime, 1);
+        }
+
+        if (actionQueue.length() < action.config.maxQueueSize*2) {
+            addNewVictims(action.config);
+        }
+        console.log(_.map(actionQueue.toArray(), (elem) => elem[1].type));
+    }
+});
+/*
+function updateMemorialLoop(config: AppConfiguration): void {
     console.log("Starting loop");
     let currentVictim = victimList.dequeue();
     if (!currentVictim) {
@@ -51,36 +78,58 @@ function updateMemorialLoop(): void {
     }
     setTimeout(function () {
         console.log("Fading in");
-        $("#memorial").fadeTo(1 * 1000, 1, function () {
+        $("#memorial").fadeTo(config.fadeInTime, 1, function () {
             console.log("Faded in");
             setTimeout(function () {
                 console.log("Fading out");
-                $("#memorial").fadeTo(1 * 1000, 0, updateMemorialLoop);
-            }, 3 * 1000);
+                $("#memorial").fadeTo(config.fadeOutTime, 0, function () {
+                    updateMemorialLoop(config);
+                });
+            }, config.duration - config.fadeInTime - config.fadeOutTime);
         });
     }, waitTime);
     console.log("Length: " + victimList.getLength());
-    if (victimList.getLength() < 1000) {
-        addNewVictims();
+    if (victimList.getLength() < config.maxQueueSize) {
+        addNewVictims(config);
     }
 }
-
-function addNewVictims(callback?: ()=>void) {
+*/
+function addNewVictims(config: AppConfiguration, callback?: (config: AppConfiguration)=>void) {
     const nonNullCallback = callback || _.noop;
     console.log("trying to add...");
     /* TODO: Retry on fail after some time and try again a few seconds
      *     after a failure
      */
-    $.get("api/schedule", function (data: Victim[]) {
+    const request = {
+        next: config.batchSize,
+        // TODO: max of latest time and current time
+        after: actionQueue.getLatestScheduledTime() || new Date()
+    }
+    $.get("api/schedule", request, function (data: Victim[]) {
         _.each(data, function (victim: Victim) {
             victim.scheduledTime = new Date(victim.scheduledTime);
-            victimList.enqueue(victim);
+            const fadeOutPrev = new Date(victim.scheduledTime.getTime() - config.fadeOutTime)
+            if (victim.scheduledTime > actionQueue.getLatestScheduledTime()) {
+                actionQueue.addLatest({
+                    type: ActionType.fadeOut,
+                    config
+                }, fadeOutPrev);
+                actionQueue.addLatest({
+                    type: ActionType.fadeIn,
+                    victim,
+                    config
+                }, victim.scheduledTime);
+            } else {
+                console.warn("EARLIER:", victim.scheduledTime, actionQueue.getLatestScheduledTime());
+            }
         });
         console.log(data);
-        nonNullCallback();
+        nonNullCallback(config);
     }, "json");
 }
 
 $(document).ready(function () {
-    addNewVictims(updateMemorialLoop);
+    getConfig(function (conf: AppConfiguration) {
+        addNewVictims(conf/*, updateMemorialLoop*/);
+    });
 });

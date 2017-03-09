@@ -5,6 +5,6 @@
         "pretty": true
     },
     "include": [
-        "../src/server/app.ts"
+        "../src/ts/**/*.ts"
     ]
 }
