@@ -1,6 +1,6 @@
 {
   "name": "remember",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "An online memorial page for victims of genocide.",
   "main": "index.html",
   "scripts": {
