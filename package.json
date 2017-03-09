@@ -35,6 +35,7 @@
   "homepage": "https://github.com/cbh66/remember",
   "devDependencies": {
     "chai": "^3.5.0",
+    "es6-promise": "^4.1.0",
     "mocha": "^3.1.2",
     "sinon": "^1.17.6",
     "ts-loader": "^1.0.0"
