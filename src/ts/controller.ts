@@ -4,6 +4,7 @@
 import TimedQueue from './TimedQueue';
 import * as _ from 'lodash';
 import {getConfig, AppConfiguration} from "./configuration";
+import { Promise } from "es6-promise";
 
 function verticallyCenter(inner: JQuery, container: JQuery): void  {
     let inHeight = inner.outerHeight();
@@ -94,8 +95,7 @@ function updateMemorialLoop(config: AppConfiguration): void {
     }
 }
 */
-function addNewVictims(config: AppConfiguration, callback?: (config: AppConfiguration)=>void) {
-    const nonNullCallback = callback || _.noop;
+function addNewVictims(config: AppConfiguration): Promise<AppConfiguration> {
     console.log("trying to add...");
     /* TODO: Retry on fail after some time and try again a few seconds
      *     after a failure
@@ -105,27 +105,28 @@ function addNewVictims(config: AppConfiguration, callback?: (config: AppConfigur
         // TODO: max of latest time and current time
         after: actionQueue.getLatestScheduledTime() || new Date()
     }
-    $.get("api/schedule", request, function (data: Victim[]) {
-        _.each(data, function (victim: Victim) {
-            victim.scheduledTime = new Date(victim.scheduledTime);
-            const fadeOutPrev = new Date(victim.scheduledTime.getTime() - config.fadeOutTime)
-            if (victim.scheduledTime > actionQueue.getLatestScheduledTime()) {
-                actionQueue.addLatest({
-                    type: ActionType.fadeOut,
-                    config
-                }, fadeOutPrev);
-                actionQueue.addLatest({
-                    type: ActionType.fadeIn,
-                    victim,
-                    config
-                }, victim.scheduledTime);
-            } else {
-                console.warn("EARLIER:", victim.scheduledTime, actionQueue.getLatestScheduledTime());
-            }
-        });
-        console.log(data);
-        nonNullCallback(config);
-    }, "json");
+    return new Promise((resolve, reject) => {
+        $.get("api/schedule", request, function (data: Victim[]) {
+            _.each(data, function (victim: Victim) {
+                victim.scheduledTime = new Date(victim.scheduledTime);
+                const fadeOutPrev = new Date(victim.scheduledTime.getTime() - config.fadeOutTime)
+                if (victim.scheduledTime > actionQueue.getLatestScheduledTime()) {
+                    actionQueue.addLatest({
+                        type: ActionType.fadeOut,
+                        config
+                    }, fadeOutPrev);
+                    actionQueue.addLatest({
+                        type: ActionType.fadeIn,
+                        victim,
+                        config
+                    }, victim.scheduledTime);
+                } else {
+                    console.warn("EARLIER:", victim.scheduledTime, actionQueue.getLatestScheduledTime());
+                }
+            });
+        }, "json");
+    })
+
 }
 
 $(document).ready(function () {
