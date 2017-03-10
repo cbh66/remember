@@ -45,6 +45,7 @@ interface Action {
     config: AppConfiguration
 }
 
+let loadingActions = false;
 let actionQueue: TimedQueue<Action> = new TimedQueue<Action>({
     callback: (action: Action): void => {
         if (action.type === ActionType.fadeOut) {
@@ -56,8 +57,12 @@ let actionQueue: TimedQueue<Action> = new TimedQueue<Action>({
             $("#memorial").fadeTo(action.config.fadeInTime, 1);
         }
 
-        if (actionQueue.length() < action.config.maxQueueSize*2) {
-            addNewVictims(action.config);
+        if (actionQueue.length() < action.config.maxQueueSize*2 &&
+            !loadingActions) {
+            loadingActions = true;
+            addNewVictims(action.config)
+                .then(() => loadingActions = false)
+                .catch(() => loadingActions = false);
         }
         console.log(_.map(actionQueue.toArray(), (elem) => elem[1].type));
     }
@@ -95,7 +100,7 @@ function updateMemorialLoop(config: AppConfiguration): void {
     }
 }
 */
-function addNewVictims(config: AppConfiguration): Promise<AppConfiguration> {
+function addNewVictims(config: AppConfiguration): Promise<any> {
     console.log("trying to add...");
     /* TODO: Retry on fail after some time and try again a few seconds
      *     after a failure
@@ -124,9 +129,9 @@ function addNewVictims(config: AppConfiguration): Promise<AppConfiguration> {
                     console.warn("EARLIER:", victim.scheduledTime, actionQueue.getLatestScheduledTime());
                 }
             });
+            resolve();
         }, "json");
-    })
-
+    });
 }
 
 $(document).ready(function () {
