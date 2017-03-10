@@ -140,7 +140,5 @@ function addNewVictims(config: AppConfiguration): Promise<any> {
 }
 
 $(document).ready(function () {
-    getConfig(function (conf: AppConfiguration) {
-        addNewVictims(conf/*, updateMemorialLoop*/);
-    });
+    getConfig().then(addNewVictims).catch((err) => console.error(err));
 });
