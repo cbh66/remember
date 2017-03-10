@@ -140,5 +140,6 @@ function addNewVictims(config: AppConfiguration): Promise<any> {
 }
 
 $(document).ready(function () {
-    getConfig().then(addNewVictims).catch((err) => console.error(err));
+    getConfig().then(addNewVictims)
+        .catch((conf) => console.error("Badly formed configuration", conf));
 });

@@ -26,7 +26,7 @@ export function getConfig(): Promise<AppConfiguration> {
             if (isConfig(config)) {
                 resolve(config);
             } else {
-                reject("Badly formed configuration object");
+                reject(config);
             }
         }, "json");
     })
