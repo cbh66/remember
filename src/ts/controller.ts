@@ -46,16 +46,21 @@ interface Action {
 }
 
 let loadingActions = false;
+let currentAction:  Promise<any> = Promise.resolve();
 let actionQueue: TimedQueue<Action> = new TimedQueue<Action>({
     callback: (action: Action): void => {
-        if (action.type === ActionType.fadeOut) {
-            console.log("Fading out");
-            $("#memorial").fadeTo(action.config.fadeOutTime, 0)
-        } else if (action.victim && action.type === ActionType.fadeIn) {
-            updateMemorial(action.victim);
-            console.log("Fading in");
-            $("#memorial").fadeTo(action.config.fadeInTime, 1);
-        }
+        currentAction = currentAction.then(() => new Promise((resolve, reject) => {
+            if (action.type === ActionType.fadeOut) {
+                console.log("Fading out");
+                $("#memorial").fadeTo(action.config.fadeOutTime, 0, resolve);
+            } else if (action.victim && action.type === ActionType.fadeIn) {
+                updateMemorial(action.victim);
+                console.log("Fading in");
+                $("#memorial").fadeTo(action.config.fadeInTime, 1, resolve);
+            } else {
+                reject();
+            }
+        }));
 
         if (actionQueue.length() < action.config.maxQueueSize*2 &&
             !loadingActions) {
