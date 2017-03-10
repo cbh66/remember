@@ -4,7 +4,7 @@ import * as mongo from "mongodb";
 import * as path from "path";
 import * as _ from "lodash";
 import getConfig from "./configuration";
-import TimedQueue from "../TimedQueue"
+import TimedQueue from "../TimedQueue";
 var MongoClient = mongo.MongoClient;
 var app = express();
 
@@ -46,6 +46,47 @@ function setupAppWithDb(db: mongo.Db) {
     let names = db.collection('names');
     let cachedSchedule = new TimedQueue<Victim>();
     app.set('port', (process.env.PORT || 5000));
+
+    function retrieveValues(after: Date, quantity: number): Promise<Victim> {
+        const cachedValues = valuesFromCache(cachedSchedule.toArray(), after, quantity);
+        const amountRemaining = quantity - cachedValues.length;
+        return new Promise((resolve, reject) => {
+            if (amountRemaining) { // cache miss; add to cache
+                /* Possible multiple misses happen concurrently: then the cache
+                 * will be added to n times; but each insertion to the cache should
+                 * still be atomic.
+                 */
+                console.log("MISS!", "before", cachedValues.length);
+                // Possibly increase size to make the call to the db worth it
+                names.aggregate([{
+                    "$sample": {
+                        "size": Math.max(amountRemaining, config.batchSize)
+                    }
+                }]).toArray(function (err, docs) {
+                    // Ensures we always add to end, with or without concurrency
+                    const baseTime = cachedSchedule.getLatestScheduledTime() || new Date();
+                    docs = _.map(docs, function (doc, index) {
+                        return _.extend(doc, {
+                            scheduledTime: addSeconds(baseTime, (index+1) * config.duration/1000)
+                        });
+                    });
+                    _.each(docs, doc => cachedSchedule.addLatest(doc, doc.scheduledTime));
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve([
+                            ...cachedValues,
+                            ..._.take(docs, amountRemaining)
+                        ]);
+                    }
+                    console.log("MISS!", "after", cachedSchedule.length());
+                });
+            } else { // cache hit
+                console.log("HIT!", cachedValues.length);
+                resolve(cachedValues);
+            }
+        });
+    }
 
     app.use(express.static(__dirname));
     app.use("/build", express.static(buildDir));
@@ -99,47 +140,15 @@ function setupAppWithDb(db: mongo.Db) {
             }
             before = addSeconds(after, quantity * config.duration/1000);
         }
-        console.log("quantity requested", quantity)
-
-        const cachedValues = valuesFromCache(cachedSchedule.toArray(), after, quantity);
-        const amountRemaining = quantity - cachedValues.length;
-
-        if (amountRemaining) { // cache miss; add to cache
-            /* Possible multiple misses happen concurrently: then the cache
-             * will be added to n times; but each insertion to the cache should
-             * still be atomic.
-             */
-            console.log("MISS!", "before", cachedValues.length);
-            // Possibly increase size to make the call to the db worth it
-            names.aggregate([{
-                "$sample": {
-                    "size": Math.max(amountRemaining, config.batchSize)
-                }
-            }]).toArray(function (err, docs) {
-                // Ensures we always add to end, with or without concurrency
-                const baseTime = cachedSchedule.getLatestScheduledTime() || new Date();
-                docs = _.map(docs, function (doc, index) {
-                    return _.extend(doc, {
-                        scheduledTime: addSeconds(baseTime, (index+1) * config.duration/1000)
-                    });
-                });
-                _.each(docs, doc => cachedSchedule.addLatest(doc, doc.scheduledTime))
-                if (err) {
-                    response.status(500).end();
-                } else {
-                    response.status(200);
-                    response.send([
-                        ...cachedValues,
-                        ..._.take(docs, amountRemaining)
-                    ]);
-                }
-                console.log("MISS!", "after", cachedSchedule.length());
-            });
-        } else { // cache hit
-            console.log("HIT!", cachedValues.length);
+        console.log("quantity requested", quantity);
+        //TODO: reduce the quantity if it's ridiculously high
+        retrieveValues(after, quantity).then((values) => {
             response.status(200);
-            response.send(cachedValues);
-        }
+            response.send(values);
+        }).catch((err) => {
+            console.error("Error requesting", quantity, "values after", after, err);
+            response.status(500).end();
+        })
     });
 }
 
