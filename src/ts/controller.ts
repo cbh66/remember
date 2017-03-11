@@ -1,9 +1,9 @@
 /// <reference path="lib/victim.d.ts" />
-import TimedQueue from './lib/TimedQueue';
 import * as $ from "jquery";
 import * as _ from 'lodash';
-import {getConfig, AppConfiguration} from "./app/configuration";
 import { Promise } from "es6-promise";
+import TimedQueue from './lib/TimedQueue';
+import {getConfig, AppConfiguration} from "./app/configuration";
 
 function verticallyCenter(inner: JQuery, container: JQuery): void  {
     let inHeight = inner.outerHeight();
@@ -44,75 +44,77 @@ interface Action {
     config: AppConfiguration
 }
 
-let loadingActions = false;
-let currentAction:  Promise<any> = Promise.resolve();
-let actionQueue: TimedQueue<Action> = new TimedQueue<Action>({
-    callback: (action: Action): void => {
-        currentAction = currentAction.then(() => new Promise((resolve, reject) => {
-            if (action.type === ActionType.fadeOut) {
-                console.log("Fading out");
-                $("#memorial").fadeTo(action.config.fadeOutTime, 0, resolve);
-            } else if (action.victim && action.type === ActionType.fadeIn) {
-                updateMemorial(action.victim);
-                console.log("Fading in");
-                $("#memorial").fadeTo(action.config.fadeInTime, 1, resolve);
-            } else {
-                reject();
-            }
-        }));
-
-        if (actionQueue.length() < action.config.maxQueueSize*2 &&
-            !loadingActions) {
-            loadingActions = true;
-            getNewVictims(action.config)
-                .then((victims) => addNewVictims(victims, action.config))
-                .then(() => loadingActions = false)
-                .catch(() => loadingActions = false);
-        }
-        console.log(_.map(actionQueue.toArray(), (elem) => elem[1].type));
-    }
-});
-
-function getNewVictims(config: AppConfiguration): Promise<Victim[]> {
-    console.log("trying to add...");
-    /* TODO: Retry on fail after some time and try again a few seconds
-     *     after a failure
-     */
-    const request = {
-        next: config.batchSize,
-        // TODO: max of latest time and current time
-        after: actionQueue.getLatestScheduledTime() || new Date()
-    }
-    return new Promise((resolve, reject) => {
-        $.get("api/schedule", request, function (data: Victim[]) {
-            _.each(data, function (victim: Victim) {
-                victim.scheduledTime = new Date(victim.scheduledTime);
-            });
-            resolve(data);
-        }, "json");
-    });
-}
-
-function addNewVictims(victims: Victim[], config: AppConfiguration) {
-    _.each(victims, (victim) => {
-        const fadeOutPrev = new Date(victim.scheduledTime.getTime() - config.fadeOutTime)
-        if (victim.scheduledTime > actionQueue.getLatestScheduledTime()) {
-            actionQueue.addLatest({
-                type: ActionType.fadeOut,
-                config
-            }, fadeOutPrev);
-            actionQueue.addLatest({
-                type: ActionType.fadeIn,
-                victim,
-                config
-            }, victim.scheduledTime);
-        } else {
-            console.warn("EARLIER:", victim.scheduledTime, actionQueue.getLatestScheduledTime());
-        }
-    });
-}
 
 $(document).ready(function () {
+    let loadingActions = false;
+    let currentAction:  Promise<any> = Promise.resolve();
+    let actionQueue: TimedQueue<Action> = new TimedQueue<Action>({
+        callback: (action: Action): void => {
+            currentAction = currentAction.then(() => new Promise((resolve, reject) => {
+                if (action.type === ActionType.fadeOut) {
+                    console.log("Fading out");
+                    $("#memorial").fadeTo(action.config.fadeOutTime, 0, resolve);
+                } else if (action.victim && action.type === ActionType.fadeIn) {
+                    updateMemorial(action.victim);
+                    console.log("Fading in");
+                    $("#memorial").fadeTo(action.config.fadeInTime, 1, resolve);
+                } else {
+                    reject();
+                }
+            }));
+
+            if (actionQueue.length() < action.config.maxQueueSize*2 &&
+                !loadingActions) {
+                loadingActions = true;
+                getNewVictims(action.config)
+                    .then((victims) => addNewVictims(victims, action.config))
+                    .then(() => loadingActions = false)
+                    .catch(() => loadingActions = false);
+            }
+            console.log(_.map(actionQueue.toArray(), (elem) => elem[1].type));
+        }
+    });
+
+    function getNewVictims(config: AppConfiguration): Promise<Victim[]> {
+        console.log("trying to add...");
+        /* TODO: Retry on fail after some time and try again a few seconds
+         *     after a failure
+         */
+        const request = {
+            next: config.batchSize,
+            // TODO: max of latest time and current time
+            after: actionQueue.getLatestScheduledTime() || new Date()
+        }
+        return new Promise((resolve, reject) => {
+            $.get("api/schedule", request, function (data: Victim[]) {
+                _.each(data, function (victim: Victim) {
+                    victim.scheduledTime = new Date(victim.scheduledTime);
+                });
+                resolve(data);
+            }, "json");
+        });
+    }
+
+    function addNewVictims(victims: Victim[], config: AppConfiguration) {
+        _.each(victims, (victim) => {
+            const fadeOutPrev = new Date(victim.scheduledTime.getTime() - config.fadeOutTime)
+            if (victim.scheduledTime > actionQueue.getLatestScheduledTime()) {
+                actionQueue.addLatest({
+                    type: ActionType.fadeOut,
+                    config
+                }, fadeOutPrev);
+                actionQueue.addLatest({
+                    type: ActionType.fadeIn,
+                    victim,
+                    config
+                }, victim.scheduledTime);
+            } else {
+                console.warn("EARLIER:", victim.scheduledTime, actionQueue.getLatestScheduledTime());
+            }
+        });
+    }
+
+
     getConfig()
         .then((config) => getNewVictims(config).then((victims) => addNewVictims(victims, config)))
         .catch((conf) => console.error("Badly formed configuration", conf));
