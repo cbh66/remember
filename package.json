@@ -35,7 +35,6 @@
   "homepage": "https://github.com/cbh66/remember",
   "devDependencies": {
     "chai": "^3.5.0",
-    "es6-promise": "^4.1.0",
     "mocha": "^3.1.2",
     "sinon": "^1.17.6",
     "ts-loader": "^1.0.0"
@@ -50,6 +49,7 @@
     "@types/sinon": "^1.16.32",
     "browserify": "^13.1.1",
     "child_process": "^1.0.2",
+    "es6-promise": "^4.1.0",
     "express": "^4.14.0",
     "gulp": "^3.9.1",
     "gulp-nodemon": "^2.2.1",
