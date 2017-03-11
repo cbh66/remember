@@ -16,25 +16,24 @@ interface Action {
     config: AppConfiguration
 }
 
-
 $(document).ready(function () {
     let memorial = new VictimCard($("#memorial-container"));
     let loadingActions = false;
-    let currentAction:  Promise<any> = Promise.resolve();
+    let currentAction:  Promise<void> = Promise.resolve<void>(undefined);
     let actionQueue: TimedQueue<Action> = new TimedQueue<Action>({
         callback: (action: Action): void => {
-            currentAction = currentAction.then(() => new Promise((resolve, reject) => {
+            currentAction = currentAction.then(() => {
                 if (action.type === ActionType.fadeOut) {
                     console.log("Fading out");
-                    $("#memorial").fadeTo(action.config.fadeOutTime, 0, resolve);
+                    return memorial.fadeOut(action.config.fadeOutTime);
                 } else if (action.victim && action.type === ActionType.fadeIn) {
-                    memorial.setVictim(action.victim);
                     console.log("Fading in");
-                    $("#memorial").fadeTo(action.config.fadeInTime, 1, resolve);
+                    return memorial.fadeInNewVictim(action.victim, action.config.fadeInTime);
                 } else {
-                    reject();
+                    return new Promise<void>((_, reject) =>
+                        reject("Invalid state: invalid action type " + action.type));
                 }
-            }));
+            });
 
             if (actionQueue.length() < action.config.maxQueueSize*2 &&
                 !loadingActions) {
@@ -86,7 +85,6 @@ $(document).ready(function () {
             }
         });
     }
-
 
     getConfig()
         .then((config) => getNewVictims(config).then((victims) => addNewVictims(victims, config)))
