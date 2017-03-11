@@ -64,47 +64,16 @@ let actionQueue: TimedQueue<Action> = new TimedQueue<Action>({
         if (actionQueue.length() < action.config.maxQueueSize*2 &&
             !loadingActions) {
             loadingActions = true;
-            addNewVictims(action.config)
+            getNewVictims(action.config)
+                .then((victims) => addNewVictims(victims, action.config))
                 .then(() => loadingActions = false)
                 .catch(() => loadingActions = false);
         }
         console.log(_.map(actionQueue.toArray(), (elem) => elem[1].type));
     }
 });
-/*
-function updateMemorialLoop(config: AppConfiguration): void {
-    console.log("Starting loop");
-    let currentVictim = victimList.dequeue();
-    if (!currentVictim) {
-        return console.error("Could not retrieve more names");
-    }
-    updateMemorial(currentVictim);
 
-    // TODO: to stay synchronized, wait time should reflect how long info is visible,
-    //    not how long between victims
-    let waitTime: number = 0;  // To stay synchronized
-    if (currentVictim.scheduledTime) {
-        waitTime = currentVictim.scheduledTime.getTime() - new Date().getTime()
-    }
-    setTimeout(function () {
-        console.log("Fading in");
-        $("#memorial").fadeTo(config.fadeInTime, 1, function () {
-            console.log("Faded in");
-            setTimeout(function () {
-                console.log("Fading out");
-                $("#memorial").fadeTo(config.fadeOutTime, 0, function () {
-                    updateMemorialLoop(config);
-                });
-            }, config.duration - config.fadeInTime - config.fadeOutTime);
-        });
-    }, waitTime);
-    console.log("Length: " + victimList.getLength());
-    if (victimList.getLength() < config.maxQueueSize) {
-        addNewVictims(config);
-    }
-}
-*/
-function addNewVictims(config: AppConfiguration): Promise<any> {
+function getNewVictims(config: AppConfiguration): Promise<Victim[]> {
     console.log("trying to add...");
     /* TODO: Retry on fail after some time and try again a few seconds
      *     after a failure
@@ -118,27 +87,33 @@ function addNewVictims(config: AppConfiguration): Promise<any> {
         $.get("api/schedule", request, function (data: Victim[]) {
             _.each(data, function (victim: Victim) {
                 victim.scheduledTime = new Date(victim.scheduledTime);
-                const fadeOutPrev = new Date(victim.scheduledTime.getTime() - config.fadeOutTime)
-                if (victim.scheduledTime > actionQueue.getLatestScheduledTime()) {
-                    actionQueue.addLatest({
-                        type: ActionType.fadeOut,
-                        config
-                    }, fadeOutPrev);
-                    actionQueue.addLatest({
-                        type: ActionType.fadeIn,
-                        victim,
-                        config
-                    }, victim.scheduledTime);
-                } else {
-                    console.warn("EARLIER:", victim.scheduledTime, actionQueue.getLatestScheduledTime());
-                }
             });
-            resolve();
+            resolve(data);
         }, "json");
     });
 }
 
+function addNewVictims(victims: Victim[], config: AppConfiguration) {
+    _.each(victims, (victim) => {
+        const fadeOutPrev = new Date(victim.scheduledTime.getTime() - config.fadeOutTime)
+        if (victim.scheduledTime > actionQueue.getLatestScheduledTime()) {
+            actionQueue.addLatest({
+                type: ActionType.fadeOut,
+                config
+            }, fadeOutPrev);
+            actionQueue.addLatest({
+                type: ActionType.fadeIn,
+                victim,
+                config
+            }, victim.scheduledTime);
+        } else {
+            console.warn("EARLIER:", victim.scheduledTime, actionQueue.getLatestScheduledTime());
+        }
+    });
+}
+
 $(document).ready(function () {
-    getConfig().then(addNewVictims)
+    getConfig()
+        .then((config) => getNewVictims(config).then((victims) => addNewVictims(victims, config)))
         .catch((conf) => console.error("Badly formed configuration", conf));
 });
