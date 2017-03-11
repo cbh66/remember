@@ -9,10 +9,10 @@ At the top level are files for starting the application: build files, a script f
 
 In `conf/` are configuration files, including files for specifying compilation and testing options.
 
-In `src/` are the source files for styles and functionality (in `css/` and `js/` respectively).
+In `src/` are the source files for styles,  functionality, and html (in `styles/` and `ts/` respectively).  `src/ts` is further divided into `app/` code for the frontend, `server/` for the backend, and `lib/` for shared code.
 
 ## Development
-This application is written in Typescript, with stylesheets written in SASS.  It uses MongoDB for the database, Mocha for testing, and Gulp for building.
+This application is written in Typescript, with the frontend using jQuery and Handlebars.   Stylesheets are written in SASS.  MongoDB is used for the database, Mocha for testing, and Gulp for building.
 
 Upon cloning or forking this repo, run `npm install` to install all dependencies.  Run `npm run watch` to build the code, start a database seeded with test data, and start a server.  You can then view the front page at [http://localhost:5000/](http://localhost:5000/).  Code will be rebuilt automatically when any source file changes.
 
