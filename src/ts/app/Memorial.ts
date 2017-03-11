@@ -12,8 +12,7 @@ enum ActionType {
 }
 interface Action {
     type: ActionType,
-    victim?: Victim,  // if action type is fadeIn
-    config: AppConfiguration
+    victim?: Victim  // if action type is fadeIn
 }
 
 export default class Memorial {
@@ -27,7 +26,7 @@ export default class Memorial {
         this.actionQueue = new TimedQueue<Action>({
             callback: (action: Action): void => {
                 this.processAction(action);
-                if (this.actionQueue.length() < action.config.maxQueueSize*2 &&
+                if (this.actionQueue.length() < this.config.maxQueueSize*2 &&
                     !this.currentlyLoadingActions) {
                     this.currentlyLoadingActions = true;
                     this.getNewVictims()
@@ -43,10 +42,10 @@ export default class Memorial {
         this.currentAction = this.currentAction.then(() => {
             if (action.type === ActionType.fadeOut) {
                 console.log("Fading out");
-                return this.victimCard.fadeOut(action.config.fadeOutTime);
+                return this.victimCard.fadeOut(this.config.fadeOutTime);
             } else if (action.victim && action.type === ActionType.fadeIn) {
                 console.log("Fading in");
-                return this.victimCard.fadeInNewVictim(action.victim, action.config.fadeInTime);
+                return this.victimCard.fadeInNewVictim(action.victim, this.config.fadeInTime);
             } else {
                 return new Promise<void>((_, reject) =>
                     reject("Invalid state: invalid action type " + action.type));
@@ -55,7 +54,6 @@ export default class Memorial {
     }
 
     public getAndAddNewVictims() {
-        console.log("yeah here...");
         this.getNewVictims().then((victims) => this.addNewVictims(victims));
     }
 
@@ -66,9 +64,7 @@ export default class Memorial {
             after: this.actionQueue.getLatestScheduledTime() || new Date()
         }
         return new Promise((resolve, reject) => {
-            console.log("getting....");
             $.get("api/schedule", request, function (data: Victim[]) {
-                console.log("adding....");
                 _.each(data, function (victim: Victim) {
                     victim.scheduledTime = new Date(victim.scheduledTime);
                 });
@@ -82,13 +78,11 @@ export default class Memorial {
             const fadeOutPrev = new Date(victim.scheduledTime.getTime() - this.config.fadeOutTime)
             if (victim.scheduledTime > this.actionQueue.getLatestScheduledTime()) {
                 this.actionQueue.addLatest({
-                    type: ActionType.fadeOut,
-                    config: this.config
+                    type: ActionType.fadeOut
                 }, fadeOutPrev);
                 this.actionQueue.addLatest({
                     type: ActionType.fadeIn,
-                    victim,
-                    config: this.config
+                    victim
                 }, victim.scheduledTime);
             } else {
                 console.warn("EARLIER:", victim.scheduledTime,
