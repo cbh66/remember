@@ -1,10 +1,10 @@
-/// <reference path="../victim.d.ts" />
+/// <reference path="../lib/victim.d.ts" />
 import * as express from "express";
 import * as mongo from "mongodb";
 import * as path from "path";
 import * as _ from "lodash";
 import getConfig from "./configuration";
-import TimedQueue from "../TimedQueue";
+import TimedQueue from "../lib/TimedQueue";
 var MongoClient = mongo.MongoClient;
 var app = express();
 
