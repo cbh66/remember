@@ -1,6 +1,5 @@
-/// <reference path="Queue.ts" />
-/// <reference path="victim.d.ts" />
-import TimedQueue from './TimedQueue';
+/// <reference path="lib/victim.d.ts" />
+import TimedQueue from './lib/TimedQueue';
 import * as $ from "jquery";
 import * as _ from 'lodash';
 import {getConfig, AppConfiguration} from "./configuration";
