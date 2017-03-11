@@ -2,37 +2,9 @@
 import * as $ from "jquery";
 import * as _ from 'lodash';
 import { Promise } from "es6-promise";
+import VictimCard from "./app/VictimCard";
 import TimedQueue from './lib/TimedQueue';
-import {getConfig, AppConfiguration} from "./app/configuration";
-
-function verticallyCenter(inner: JQuery, container: JQuery): void  {
-    let inHeight = inner.outerHeight();
-    let conHeight = container.outerHeight();
-    inner.css('margin-top', ((conHeight-inHeight)/2)+'px');
-}
-
-$(window).on('resize', function () {
-    verticallyCenter($("#memorial"), $("#memorial-container"));
-});
-
-function updateMemorial(victim: Victim): void {
-    let name = $("#name");
-    let years = $("#years");
-    let event = $("#event");
-    let facts = $("#facts");
-
-    name.html(victim.name || "");
-    if (victim.birthYear || victim.deathYear) {
-        years.html((victim.birthYear || "?") + " - " +
-                   (victim.deathYear || "?"));
-    } else {
-        years.html("")
-    }
-    event.html(victim.event || "");
-    facts.html(victim.details || "");
-
-    verticallyCenter($("#memorial"), $("#memorial-container"));
-}
+import { getConfig, AppConfiguration } from "./app/configuration";
 
 enum ActionType {
     fadeIn,
@@ -46,6 +18,7 @@ interface Action {
 
 
 $(document).ready(function () {
+    let memorial = new VictimCard($("#memorial-container"));
     let loadingActions = false;
     let currentAction:  Promise<any> = Promise.resolve();
     let actionQueue: TimedQueue<Action> = new TimedQueue<Action>({
@@ -55,7 +28,7 @@ $(document).ready(function () {
                     console.log("Fading out");
                     $("#memorial").fadeTo(action.config.fadeOutTime, 0, resolve);
                 } else if (action.victim && action.type === ActionType.fadeIn) {
-                    updateMemorial(action.victim);
+                    memorial.setVictim(action.victim);
                     console.log("Fading in");
                     $("#memorial").fadeTo(action.config.fadeInTime, 1, resolve);
                 } else {
