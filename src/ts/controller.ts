@@ -2,7 +2,7 @@
 import TimedQueue from './lib/TimedQueue';
 import * as $ from "jquery";
 import * as _ from 'lodash';
-import {getConfig, AppConfiguration} from "./configuration";
+import {getConfig, AppConfiguration} from "./app/configuration";
 import { Promise } from "es6-promise";
 
 function verticallyCenter(inner: JQuery, container: JQuery): void  {
