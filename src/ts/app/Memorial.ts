@@ -1,4 +1,5 @@
 /// <reference path="../lib/victim.d.ts" />
+import * as $ from "jquery";
 import * as _ from "lodash";
 import TimedQueue from "../lib/TimedQueue";
 import { Promise } from "es6-promise";
@@ -19,9 +20,9 @@ export default class Memorial {
     private victimCard: VictimCard;
     private currentlyLoadingActions = false;
     private currentAction:  Promise<void> = Promise.resolve<void>(undefined);
-    private actionQueue: TimedQueue<Action>
+    private actionQueue: TimedQueue<Action>;
 
-    constructor(public container: JQuery) {
+    constructor(public container: JQuery, public config: AppConfiguration) {
         this.victimCard = new VictimCard(container);
         this.actionQueue = new TimedQueue<Action>({
             callback: (action: Action): void => {
@@ -29,8 +30,8 @@ export default class Memorial {
                 if (this.actionQueue.length() < action.config.maxQueueSize*2 &&
                     !this.currentlyLoadingActions) {
                     this.currentlyLoadingActions = true;
-                    this.getNewVictims(action.config)
-                        .then((victims) => this.addNewVictims(victims, action.config))
+                    this.getNewVictims()
+                        .then((victims) => this.addNewVictims(victims))
                         .then(() => this.currentlyLoadingActions = false)
                         .catch(() => this.currentlyLoadingActions = false);
                 }
@@ -53,20 +54,21 @@ export default class Memorial {
         });
     }
 
-    public getAndAddNewVictims(config: AppConfiguration) {
-        this.getNewVictims(config).then((victims) =>
-            this.addNewVictims(victims, config)
-        );
+    public getAndAddNewVictims() {
+        console.log("yeah here...");
+        this.getNewVictims().then((victims) => this.addNewVictims(victims));
     }
 
-    private getNewVictims(config: AppConfiguration): Promise<Victim[]> {
+    private getNewVictims(): Promise<Victim[]> {
         const request = {
-            next: config.batchSize,
+            next: this.config.batchSize,
             // TODO: max of latest time and current time
             after: this.actionQueue.getLatestScheduledTime() || new Date()
         }
         return new Promise((resolve, reject) => {
+            console.log("getting....");
             $.get("api/schedule", request, function (data: Victim[]) {
+                console.log("adding....");
                 _.each(data, function (victim: Victim) {
                     victim.scheduledTime = new Date(victim.scheduledTime);
                 });
@@ -75,18 +77,18 @@ export default class Memorial {
         });
     }
 
-    private addNewVictims(victims: Victim[], config: AppConfiguration) {
+    private addNewVictims(victims: Victim[]) {
         _.each(victims, (victim) => {
-            const fadeOutPrev = new Date(victim.scheduledTime.getTime() - config.fadeOutTime)
+            const fadeOutPrev = new Date(victim.scheduledTime.getTime() - this.config.fadeOutTime)
             if (victim.scheduledTime > this.actionQueue.getLatestScheduledTime()) {
                 this.actionQueue.addLatest({
                     type: ActionType.fadeOut,
-                    config
+                    config: this.config
                 }, fadeOutPrev);
                 this.actionQueue.addLatest({
                     type: ActionType.fadeIn,
                     victim,
-                    config
+                    config: this.config
                 }, victim.scheduledTime);
             } else {
                 console.warn("EARLIER:", victim.scheduledTime,

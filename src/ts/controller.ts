@@ -3,8 +3,8 @@ import Memorial from "./app/Memorial";
 import { getConfig } from "./app/configuration";
 
 $(document).ready(function () {
-    let memorial = new Memorial($("#memorial-container"));
     getConfig()
-        .then((config) => memorial.getAndAddNewVictims(config))
+        .then((config) => new Memorial($("#memorial-container"), config)
+            .getAndAddNewVictims())
         .catch((conf) => console.error("Badly formed configuration", conf));
 });
