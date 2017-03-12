@@ -12,7 +12,7 @@ const mongoUrl: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/l
 
 const buildDir = path.resolve(__dirname + "/../../");
 
-const config = getConfig(path.resolve(__dirname + "/../../config.json"), process.env);
+const config = getConfig(path.resolve(__dirname + "/../../resources/config.json"), process.env);
 console.log(config);
 
 function addSeconds(date: Date, seconds: number): Date {
@@ -92,7 +92,7 @@ function setupAppWithDb(db: mongo.Db) {
     app.use("/build", express.static(buildDir));
 
     app.get('/', function(request, response) {
-      response.sendFile('index.html', {root: buildDir});
+      response.sendFile('resources/index.html', {root: buildDir});
     });
 
     app.get('/build/js/main.js', function(request, response) {

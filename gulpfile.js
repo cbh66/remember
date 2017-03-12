@@ -122,8 +122,8 @@ gulp.task("hydrate", function () {
 });
 
 gulp.task("copyStatic", function () {
-    return gulp.src("./src/**/*.{html,json}")
-    .pipe(gulp.dest("./build"));
+    return gulp.src("./src/resources/**/*")
+        .pipe(gulp.dest("./build/resources"));
 });
 
 gulp.task("startdb", ["hydrate"], function () {
