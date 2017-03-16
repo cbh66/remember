@@ -59,3 +59,28 @@ div#memorial-container, div#reading-display {
     position: fixed;
     bottom: 0px;
 }
+
+.right {
+    right: 0px;
+}
+
+a.button {
+    text-decoration: none;
+    display: inline-block;
+    padding: 8px 16px;
+}
+
+a.button:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.button {
+    background-color: black;
+    color: white;
+    cursor: pointer;
+}
+
+.round.button {
+    border-radius: 50%;
+}

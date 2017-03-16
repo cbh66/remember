@@ -11,14 +11,19 @@ export default class Memorial {
     private fadingOut = false;
     private loadingNewVictims = false;
     private victimQueue: Queue<Victim>;
+    private nextButton: JQuery;
 
     constructor(public container: JQuery, public config: AppConfiguration) {
         this.victimCard = new VictimCard(container);
-        container.append($("<div class='bottom'>Press any key to advance...</div>"))
+        this.nextButton = $("<a class='bottom right next button'>Next ❯</a>")
+        container.append(this.nextButton);
         this.victimQueue = new Queue<Victim>();
         $(window).keypress((event) => {
             this.moveToNextVictim();
         });
+        this.nextButton.click(() => {
+            this.moveToNextVictim();
+        })
     }
 
     public moveToNextVictim(): void {
