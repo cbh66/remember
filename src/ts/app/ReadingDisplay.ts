@@ -14,6 +14,7 @@ export default class Memorial {
 
     constructor(public container: JQuery, public config: AppConfiguration) {
         this.victimCard = new VictimCard(container);
+        container.append($("<div class='bottom'>Press any key to advance...</div>"))
         this.victimQueue = new Queue<Victim>();
         $(window).keypress((event) => {
             this.moveToNextVictim();
