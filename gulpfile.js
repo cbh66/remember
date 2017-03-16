@@ -71,7 +71,11 @@ gulp.task("styles-dev", function () {
 	.pipe(gulp.dest('build/css'));
 });
 
-function bundleFile(src, dest) {
+
+var tasks = [{source: "src/ts/controller.ts", dest: "main.min.js"},
+	     {source: "src/ts/read.ts", dest: "read.js"}];
+
+function bundleFileDev(src, dest) {
     return browserify({
         basedir: '.',
         debug: true,
@@ -86,32 +90,37 @@ function bundleFile(src, dest) {
     .pipe(gulp.dest("build/js"));
 }
 
-gulp.task("bundle-dev", function () {
-	var tasks = [{source: "src/ts/controller.ts", dest: "main.js"},
-		     {source: "src/ts/read.ts", dest: "read.js"}];
-	tasks = tasks.map(function (entry) {
-		return bundleFile(entry.source, entry.dest);
-	    });
-	return es.merge(tasks);
-});
-
-gulp.task("bundle", function () {
-    return browserify({
+function bundleFile (src, dest) {
+   return browserify({
 	    basedir: '.',
 	    debug: false,
-            entries: ['src/ts/controller.ts'],
+            entries: [src],
             cache: {},
             packageCache: {}
     })
     .plugin(tsify, {project: "config/tsbuild.json"})
     .bundle()
     .on('error', onCompilationError)
-    .pipe(source('main.min.js'))
+    .pipe(source(dest))
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))
     .pipe(uglify())
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('build/js'));
+}
+
+gulp.task("bundle-dev", function () {
+	var bundle = tasks.map(function (entry) {
+		return bundleFileDev(entry.source, entry.dest);
+	    });
+	return es.merge(bundle);
+});
+
+gulp.task("bundle", function () {
+	var bundle = tasks.map(function (entry) {
+		return bundleFile(entry.source, entry.dest);
+	    });
+	return es.merge(bundle);
 });
 
 gulp.task("ts", function () {
