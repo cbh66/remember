@@ -88,7 +88,7 @@ function bundleFile(src, dest) {
 
 gulp.task("bundle-dev", function () {
 	var tasks = [{source: "src/ts/controller.ts", dest: "main.js"},
-		     {source: "src/ts/controller.ts", dest: "read.js"}];
+		     {source: "src/ts/read.ts", dest: "read.js"}];
 	tasks = tasks.map(function (entry) {
 		return bundleFile(entry.source, entry.dest);
 	    });

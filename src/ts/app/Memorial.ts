@@ -54,7 +54,7 @@ export default class Memorial {
     }
 
     public getAndAddNewVictims() {
-        this.getNewVictims().then((victims) => this.addNewVictims(victims));
+        return this.getNewVictims().then((victims) => this.addNewVictims(victims));
     }
 
     private getNewVictims(): Promise<Victim[]> {

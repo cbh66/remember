@@ -96,7 +96,7 @@ function setupAppWithDb(db: mongo.Db) {
     });
 
     app.get('/read', function (request, response) {
-        response.sendFile('read.html', {root: buildDir});
+        response.sendFile('resources/read.html', {root: buildDir});
     });
 
     app.get('/build/js/main.js', function(request, response) {
