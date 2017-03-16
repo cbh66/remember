@@ -35,6 +35,7 @@
   "homepage": "https://github.com/cbh66/remember",
   "devDependencies": {
     "chai": "^3.5.0",
+    "event-stream": "^3.3.4",
     "mocha": "^3.1.2",
     "sinon": "^1.17.6",
     "ts-loader": "^1.0.0"
@@ -42,6 +43,7 @@
   "dependencies": {
     "@types/chai": "^3.4.34",
     "@types/es6-promise": "0.0.32",
+    "@types/handlebars": "^4.0.32",
     "@types/jquery": "^2.0.40",
     "@types/lodash": "^4.14.40",
     "@types/mocha": "^2.2.33",
@@ -58,6 +60,7 @@
     "gulp-typedoc": "^2.0.2",
     "gulp-typescript": "^3.1.3",
     "gulp-uglify": "^2.0.0",
+    "handlebars": "^4.0.6",
     "jquery": "^3.1.1",
     "lodash": "^4.17.2",
     "mongodb": "^2.2.21",

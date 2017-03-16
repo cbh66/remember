@@ -7,6 +7,7 @@ var tsify = require("tsify");
 var uglify = require("gulp-uglify");
 var sourcemaps = require("gulp-sourcemaps");
 var buffer = require("vinyl-buffer");
+var es = require('event-stream');
 var sass = require("gulp-sass");
 var tsc = require('gulp-typescript');
 var typedoc = require('gulp-typedoc');
@@ -70,19 +71,28 @@ gulp.task("styles-dev", function () {
 	.pipe(gulp.dest('build/css'));
 });
 
-gulp.task("bundle-dev", function () {
+function bundleFile(src, dest) {
     return browserify({
         basedir: '.',
         debug: true,
-	entries: ['src/ts/controller.ts'],
+	entries: [src],
 	cache: {},
 	packageCache: {}
     })
     .plugin(tsify, {project: "config/tsdev.json"})
     .bundle()
     .on('error', onCompilationError)
-    .pipe(source('main.js'))
+    .pipe(source(dest))
     .pipe(gulp.dest("build/js"));
+}
+
+gulp.task("bundle-dev", function () {
+	var tasks = [{source: "src/ts/controller.ts", dest: "main.js"},
+		     {source: "src/ts/read.ts", dest: "read.js"}];
+	tasks = tasks.map(function (entry) {
+		return bundleFile(entry.source, entry.dest);
+	    });
+	return es.merge(tasks);
 });
 
 gulp.task("bundle", function () {
@@ -122,8 +132,8 @@ gulp.task("hydrate", function () {
 });
 
 gulp.task("copyStatic", function () {
-    return gulp.src("./src/**/*.{html,json}")
-    .pipe(gulp.dest("./build"));
+    return gulp.src("./src/resources/**/*")
+        .pipe(gulp.dest("./build/resources"));
 });
 
 gulp.task("startdb", ["hydrate"], function () {
@@ -150,7 +160,7 @@ gulp.task("dev", ["ts", "styles-dev", "bundle-dev", "copyStatic"]);
 gulp.task("default", ["ts", "styles", "bundle", "copyStatic"]);
 gulp.task("run", ["default", "startdb", "startserver"]);
 gulp.task("run-dev", ["dev", "startdb", "startserver"]);
-gulp.task("watch", ["run"], function () {
+gulp.task("watch", ["run-dev"], function () {
     gulp.watch("./src/**/*.ts", ["ts", "bundle-dev"]);
     gulp.watch("./src/styles/**/*.scss", ["styles-dev"]);
     gulp.watch("./src/**/*.{html,json}", ["copyStatic"]);
