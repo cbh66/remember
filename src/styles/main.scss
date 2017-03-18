@@ -22,6 +22,7 @@ div#memorial-container, div#reading-display, div#display {
     top: 0;
     left: 0;
     margin: 0;
+    text-align: center;
 
     div.overlay {
         position: relative;
@@ -46,7 +47,6 @@ div#memorial-container, div#reading-display, div#display {
     #memorial {
         opacity: 0;
         margin: auto;
-        text-align: center;
         vertical-align: middle;
         display: block;
 
@@ -82,6 +82,11 @@ div#memorial-container, div#reading-display, div#display {
 
 .right {
     right: 0px;
+}
+
+.center {
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 a.button {
