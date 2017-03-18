@@ -15,7 +15,7 @@ body {
     }
 }
 
-div#memorial-container, div#reading-display {
+div#memorial-container, div#reading-display, div#display {
     position: absolute;
     height: 100%;
     width: 100%;
@@ -27,6 +27,8 @@ div#memorial-container, div#reading-display {
         position: relative;
         width: 100%;
         height: 100%;
+        background-color: black;
+        z-index: 100;
         img {
             position:absolute;
             top: 50%;
