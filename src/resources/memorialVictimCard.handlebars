@@ -1,0 +1,10 @@
+<div id="name">{{name}}</div>
+{{#or birthYear deathYear}}
+    <div id="years">
+    {{#if birthYear}}{{birthYear}}{{else}}{{?}}{{/if}}
+    -
+    {{#if deathYear}}{{deathYear}}{{else}}{{?}}{{/if}}
+    </div>
+{{/or}}
+<div id="event">{{event}}</div>
+{{#if details}}<div id="details”">{{details}}</div>{{/if}}
