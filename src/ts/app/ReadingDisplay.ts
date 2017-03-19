@@ -6,7 +6,8 @@ import { Promise } from "es6-promise";
 import VictimCard from "./VictimCard";
 import { AppConfiguration } from "./configuration";
 
-export default class Memorial {
+export default class ReadingDisplay {
+    private displayContainer: JQuery;
     private victimCard: VictimCard;
     private fadingOut = false;
     private loadingNewVictims = false;
@@ -14,10 +15,12 @@ export default class Memorial {
     private nextButton: JQuery;
 
     constructor(public container: JQuery, public config: AppConfiguration) {
-        this.victimCard = new VictimCard(container);
-        this.nextButton = $("<a class='bottom right next button'>Next ❯</a>")
-        container.append(this.nextButton);
         this.victimQueue = new Queue<Victim>();
+        this.displayContainer = $("<div id='display'></div>");
+        this.victimCard = new VictimCard(this.displayContainer);
+        this.nextButton = $("<a class='bottom right next button'>Next ❯</a>")
+        this.displayContainer.append(this.nextButton);
+        container.append(this.displayContainer);
         $(window).keypress((event) => {
             this.moveToNextVictim();
         });

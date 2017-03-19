@@ -15,18 +15,38 @@ body {
     }
 }
 
-div#memorial-container, div#reading-display {
+div#memorial-container, div#reading-display, div#display {
     position: absolute;
     height: 100%;
     width: 100%;
     top: 0;
     left: 0;
     margin: 0;
+    text-align: center;
+
+    div.overlay {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        z-index: 100;
+        img {
+            position:absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 20px;
+        }
+    }
 
     #memorial {
         opacity: 0;
         margin: auto;
-        text-align: center;
         vertical-align: middle;
         display: block;
 
@@ -62,6 +82,11 @@ div#memorial-container, div#reading-display {
 
 .right {
     right: 0px;
+}
+
+.center {
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 a.button {
