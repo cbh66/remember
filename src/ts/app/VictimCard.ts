@@ -2,26 +2,31 @@
 import * as $ from "jquery";
 import { Promise } from "es6-promise";
 
-interface MemorialFields {
-    name: JQuery;
-    years: JQuery;
-    event: JQuery;
-    details: JQuery;
-}
-
 export default class VictimCard {
     protected victim: Victim|null;
     protected memorial: JQuery;
-    protected fields: MemorialFields;
-
-    constructor(public memorialContainer: JQuery) {
+    public updateCard: (victim: Victim) => JQuery = (victim) => {
         let name = $("<div>", { id: "name" });
         let years = $("<div>", { id: "years" });
         let event = $("<div>", { id: "event" });
         let details = $("<div>", { id: "facts" });
-        this.fields = { name, years, event, details };
+        //let { name, years, event, details } = this.fields;
+        name.html(victim.name || "");
+        if (victim.birthYear || victim.deathYear) {
+            years.html((victim.birthYear || "?") + " - " +
+                       (victim.deathYear || "?"));
+        } else {
+            years.html("")
+        }
+        event.html(victim.event || "");
+        details.html(victim.details || "");
+
+        return $("<div></div>").append(name, years, event, details);
+    };
+
+    constructor(public memorialContainer: JQuery) {
         this.memorial = $("<div>", { id: "memorial" });
-        this.memorial.append(name, years, event, details);
+        // this.memorial.append(name, years, event, details);
         this.memorialContainer.append(this.memorial);
         $(window).on('resize', () => {
             this.verticallyCenter(this.memorial, this.memorialContainer);
@@ -59,16 +64,8 @@ export default class VictimCard {
     }
 
     protected updateMemorial(victim: Victim): void {
-        let { name, years, event, details } = this.fields;
-        name.html(victim.name || "");
-        if (victim.birthYear || victim.deathYear) {
-            years.html((victim.birthYear || "?") + " - " +
-                       (victim.deathYear || "?"));
-        } else {
-            years.html("")
-        }
-        event.html(victim.event || "");
-        details.html(victim.details || "");
+        this.memorial.empty();
+        this.memorial.append(this.updateCard(victim));
 
         this.verticallyCenter(this.memorial, this.memorialContainer);
     }

@@ -6,6 +6,11 @@ import { Promise } from "es6-promise";
 import VictimCard from "./VictimCard";
 import { AppConfiguration } from "./configuration";
 
+let eventToTitle: { [key: string]: string } = {
+    "Armenia": "The Armenian Genocide",
+    "Holocaust": "The Holocaust"
+};
+
 export default class ReadingDisplay {
     private displayContainer: JQuery;
     private victimCard: VictimCard;
@@ -26,7 +31,24 @@ export default class ReadingDisplay {
         });
         this.nextButton.click(() => {
             this.moveToNextVictim();
-        })
+        });
+
+        this.victimCard.updateCard = (victim: Victim) => {
+            let text: string = victim.name + ". Perished ";
+            if (victim.birthYear && victim.deathYear) {
+                text += "at the age of " + (victim.deathYear - victim.birthYear);
+            } else if (victim.deathYear) {
+                text += "in " + victim.deathYear;
+            }
+            text += " in ";
+            if (eventToTitle[victim.event as string]) {
+                text += eventToTitle[victim.event as string];
+            } else {
+                text += victim.event;
+            }
+            text += ".";
+            return $("<div>"+text+"</div>");
+        }
     }
 
     public moveToNextVictim(): void {
