@@ -27,12 +27,12 @@ var seedData = [
         name: "John Hancock",
         birthYear: 1737,
         deathYear: 1793,
-        event: "Natural causes"
+        event: "Natural Causes"
     },
     {
         name: "Ben Franklin",
         deathYear: 1790,
-        event: "Natural causes",
+        event: "Natural Causes",
         details: "Loved France; polymath"
     },
     {
@@ -46,7 +46,43 @@ var seedData = [
         name: "Josiah Bartlett",
         birthYear: 1729,
         deathYear: 1795,
-        event: "Natural causes"
+        event: "Natural Causes"
+    },
+    {
+	name: "Alexander Hamilton",
+	birthYear: 1755,
+	deathYear: 1804,
+	event: "Duel"
+    },
+    {
+	name: "Roger Sherman",
+	birthYear: 1721,
+	deathYear: 1793,
+	event: "Typhoid"
+    },
+    {
+	name: "Robert Morris",
+	birthYear: 1734,
+	deathYear: 1806,
+	event: "Natural Causes"
+    },
+    {
+	name: "George Read",
+	birthYear: 1733,
+	deathYear: 1798,
+	event: "Natural Causes"
+    },
+    {
+	name: "Sam Adams",
+	birthYear: 1722,
+	deathYear: 1803,
+	event: "Natural Causes"
+    },
+    {
+	name: "George Washington",
+	birthYear: 1732,
+	deathYear: 1799,
+	event: "Natural Causes"
     }
 ];
 

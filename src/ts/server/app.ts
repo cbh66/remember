@@ -19,6 +19,59 @@ function addSeconds(date: Date, seconds: number): Date {
     return new Date(date.getTime() + seconds*1000);
 }
 
+const eventProportions = {
+    "Holocaust": 430,
+    "Bosnia": 290,
+    "Armenia": 100,
+    "Cambodia": 40,
+    "Kosovo": 138,
+    "Darfur": 2
+};
+// const eventProportions = {
+//     "Natural Causes": 3,
+//     "Duel": 1
+// };
+
+function normalizeProps(total: number) {
+    function randomlyRound(num: number) {
+        return Math.random() > 0.5 ? _.ceil(num) : _.floor(num);
+    }
+    const sum = _.reduce(eventProportions, (sum, val) => sum + val, 0);
+    const proportions = _.mapValues(eventProportions, (num: number) => num / sum);
+    return _.mapValues(proportions, percent => randomlyRound(percent * total));
+}
+/* Potential process for preventing repeats:
+ *  - hash all the last n names
+ *  - for each event with k specified names:
+ *    - fetch 2,3,4 (or something) times k names (maybe depending on how
+ *         many have already been hashed?)
+ *    - eliminate from this list anything that's already been hashed
+ *    - take the first k and add to a running list
+ *  - shuffle the list
+ *  - add to our cache
+ */
+function getNamesFromDb(names: mongo.Collection, quantity: number): Promise<Victim[]> {
+    const proportions = normalizeProps(quantity);
+    const promises: Promise<Victim[]>[] = _.values(_.mapValues(proportions, (amt, event) => {
+        return new Promise((resolve, reject) => {
+            names.aggregate([
+                { "$match": { "event": event } },
+                { "$sample": { "size": amt } }
+            ]).toArray(function (err, docs) {
+                console.log("chose", amt, "from", event);
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(docs);
+                }
+            });
+        });
+    }));
+    return Promise.all(promises).then((results) =>  _.shuffle(_.flatten(results)));
+}
+
+console.log(normalizeProps(1000));
+
 function randomNameSample(names: mongo.Collection, quantity: number, response: any, startTime: Date) {
     return names.aggregate([{
             "$sample": { "size": quantity }
@@ -58,27 +111,21 @@ function setupAppWithDb(db: mongo.Db) {
                  */
                 console.log("MISS!", "before", cachedValues.length);
                 // Possibly increase size to make the call to the db worth it
-                names.aggregate([{
-                    "$sample": {
-                        "size": Math.max(amountRemaining, config.batchSize)
-                    }
-                }]).toArray(function (err, docs) {
+                getNamesFromDb(names, Math.max(amountRemaining, config.batchSize))
+                    .then((docs: Victim[]) => {
+                        console.log(docs);
                     // Ensures we always add to end, with or without concurrency
                     const baseTime = cachedSchedule.getLatestScheduledTime() || new Date();
-                    docs = _.map(docs, function (doc, index) {
+                    const extendedDocs = _.map(docs, function (doc, index) {
                         return _.extend(doc, {
                             scheduledTime: addSeconds(baseTime, (index+1) * config.duration/1000)
                         });
                     });
                     _.each(docs, doc => cachedSchedule.addLatest(doc, doc.scheduledTime));
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve([
-                            ...cachedValues,
-                            ..._.take(docs, amountRemaining)
-                        ]);
-                    }
+                    resolve([
+                        ...cachedValues,
+                        ..._.take(docs, amountRemaining)
+                    ]);
                     console.log("MISS!", "after", cachedSchedule.length());
                 });
             } else { // cache hit
