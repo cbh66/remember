@@ -34,6 +34,22 @@ function normalizeProps(total: number) {
     return _.mapValues(proportions, percent => percent)
 }
 
+function getNamesFromDb(names: mongo.Collection, quantity: number): Promise<Victim[]> {
+    return new Promise((resolve, reject) => {
+        names.aggregate([{
+            "$sample": {
+                "size": quantity
+            }
+        }]).toArray(function (err, docs) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(docs);
+            }
+        });
+    });
+}
+
 console.log(normalizeProps(1000));
 
 function randomNameSample(names: mongo.Collection, quantity: number, response: any, startTime: Date) {
@@ -85,27 +101,20 @@ function setupAppWithDb(db: mongo.Db) {
  *  - shuffle the list
  *  - add to our cache
  */
-                names.aggregate([{
-                    "$sample": {
-                        "size": Math.max(amountRemaining, config.batchSize)
-                    }
-                }]).toArray(function (err, docs) {
+                getNamesFromDb(names, Math.max(amountRemaining, config.batchSize))
+                    .then((docs: Victim[]) => {
                     // Ensures we always add to end, with or without concurrency
                     const baseTime = cachedSchedule.getLatestScheduledTime() || new Date();
-                    docs = _.map(docs, function (doc, index) {
+                    const extendedDocs = _.map(docs, function (doc, index) {
                         return _.extend(doc, {
                             scheduledTime: addSeconds(baseTime, (index+1) * config.duration/1000)
                         });
                     });
                     _.each(docs, doc => cachedSchedule.addLatest(doc, doc.scheduledTime));
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve([
-                            ...cachedValues,
-                            ..._.take(docs, amountRemaining)
-                        ]);
-                    }
+                    resolve([
+                        ...cachedValues,
+                        ..._.take(docs, amountRemaining)
+                    ]);
                     console.log("MISS!", "after", cachedSchedule.length());
                 });
             } else { // cache hit
