@@ -28,7 +28,7 @@ const eventProportions = {
     "Darfur": 2
 };
 // const eventProportions = {
-//     "Natural causes": 3,
+//     "Natural Causes": 3,
 //     "Duel": 1
 // };
 
