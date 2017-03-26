@@ -96,15 +96,14 @@ div#memorial-container, div#reading-display, div#display {
 a.button {
     text-decoration: none;
     display: inline-block;
-    padding: 8px 16px;
 }
 
 a.button:hover {
-    background-color: #ddd;
-    color: black;
+    background-color: #e67914;
 }
 
 .button {
+    padding: 1em 2em;
     background-color: black;
     color: white;
     cursor: pointer;
