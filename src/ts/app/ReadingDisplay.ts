@@ -32,6 +32,9 @@ export default class ReadingDisplay {
         this.nextButton.click(() => {
             this.moveToNextVictim();
         });
+        this.displayContainer.click(() => {
+            this.moveToNextVictim();
+        })
 
         this.victimCard.updateCard = (victim: Victim) => {
             let text: string = victim.name + ". Perished ";
