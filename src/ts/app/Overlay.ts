@@ -9,7 +9,7 @@ export default class Overlay {
 
     constructor(public container: JQuery) {
         this.backgroundImage = $("<img src='build/resources/img/intro-overlay.png' />");
-        this.button = $("<a class='bottom center button'>Begin Reading</a>")
+        this.button = $("<a class='button'>Begin Reading</a>")
         this.overlayDiv = $("<div class='overlay'></div>");
         this.overlayDiv.append(this.backgroundImage).append(this.button);
         this.container.append(this.overlayDiv);

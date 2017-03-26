@@ -42,6 +42,21 @@ div#memorial-container, div#reading-display, div#display {
             max-height: 100%;
             border-radius: 20px;
         }
+
+        .button {
+            position: absolute;
+
+            @media (orientation: landscape) {
+                right: 5%;
+                top: 40%;
+            }
+
+
+            @media (orientation: portrait) {
+                right: 5%;
+                top: 45%;
+            }
+        }
     }
 
     #memorial {
@@ -104,7 +119,7 @@ a.button:hover {
 
 .button {
     padding: 1em 2em;
-    background-color: black;
+    background-color: #111;
     color: white;
     cursor: pointer;
 }
