@@ -2,27 +2,37 @@
 import * as $ from "jquery";
 import { Promise } from "es6-promise";
 
+let eventToTitle: { [key: string]: string } = {
+    "Armenia": "the Armenian Genocide",
+    "Holocaust": "the Holocaust",
+    "Native American Genocides": "the Genocidal Massacres of Native Americans",
+    "Cambodia": "the Cambodian Genocide",
+    "Rwanda": "the Rwandan Genocide",
+    "Bosnia": "the Bosnian Genocide",
+    "Kosovo": "the Kosovo War"
+};
+
 export default class VictimCard {
     protected victim: Victim|null;
     protected memorial: JQuery;
-    public updateCard: (victim: Victim) => JQuery = (victim) => {
-        let name = $("<div>", { id: "name" });
-        let years = $("<div>", { id: "years" });
-        let event = $("<div>", { id: "event" });
-        let details = $("<div>", { id: "facts" });
-        //let { name, years, event, details } = this.fields;
-        name.html(victim.name || "");
-        if (victim.birthYear || victim.deathYear) {
-            years.html((victim.birthYear || "?") + " - " +
-                       (victim.deathYear || "?"));
-        } else {
-            years.html("")
+    public updateCard: (victim: Victim) => JQuery = (victim: Victim) => {
+            let text: string = victim.name + ". Perished ";
+            if (victim.birthYear && victim.deathYear) {
+                text += "at the age of " + (victim.deathYear - victim.birthYear);
+            } else if (victim.deathYear) {
+                text += "in " + victim.deathYear;
+            }
+            text += " in ";
+            if (eventToTitle[victim.event as string]) {
+                text += eventToTitle[victim.event as string];
+            } else if (victim.event.indexOf(" ") > 0) { // multiple words
+                text += "the " + victim.event;
+            } else {
+                text += victim.event;
+            }
+            text += ".";
+            return $("<div>"+text+"</div>");
         }
-        event.html(victim.event || "");
-        details.html(victim.details || "");
-
-        return $("<div></div>").append(name, years, event, details);
-    };
 
     constructor(public memorialContainer: JQuery) {
         this.memorial = $("<div>", { id: "memorial" });
