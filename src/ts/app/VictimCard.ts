@@ -16,7 +16,9 @@ export default class VictimCard {
     protected victim: Victim|null;
     protected memorial: JQuery;
     public updateCard: (victim: Victim) => JQuery = (victim: Victim) => {
-            let text: string = victim.name + ". Perished ";
+            let container = $("<div></div>");
+            container.append($("<div class='name'>" + victim.name + "</div>"));
+            let text = "Perished ";
             if (victim.birthYear && victim.deathYear) {
                 text += "at the age of " + (victim.deathYear - victim.birthYear);
             } else if (victim.deathYear) {
@@ -31,7 +33,8 @@ export default class VictimCard {
                 text += victim.event;
             }
             text += ".";
-            return $("<div>"+text+"</div>");
+            container.append($("<div class='description'>" + text + "</div>"));
+            return container;
         }
 
     constructor(public memorialContainer: JQuery) {

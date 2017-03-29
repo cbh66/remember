@@ -72,24 +72,12 @@ div#memorial-container, div#reading-display, div#display {
             width: 100%;
         }
 
-        div {
-            font-size: 300%;
+        .name {
+            font-size: 250%;
         }
 
-        #name {
-            font-size: 167%;
-        }
-
-        #years {
-            font-size: 100%;
-        }
-
-        #event {
-            font-size: 33%;
-        }
-
-        #facts {
-            font-size: 50%;
+        .description {
+            font-size: 150%;
         }
     }
 }
