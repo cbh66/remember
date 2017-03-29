@@ -19,11 +19,6 @@ export default class VictimCard {
             let container = $("<div></div>");
             container.append($("<div class='name'>" + victim.name + "</div>"));
             let text = "Perished ";
-            if (victim.birthYear && victim.deathYear) {
-                text += "at the age of " + (victim.deathYear - victim.birthYear);
-            } else if (victim.deathYear) {
-                text += "in " + victim.deathYear;
-            }
             text += " in ";
             if (eventToTitle[victim.event as string]) {
                 text += eventToTitle[victim.event as string];
@@ -31,6 +26,11 @@ export default class VictimCard {
                 text += "the " + victim.event;
             } else {
                 text += victim.event;
+            }
+            if (victim.birthYear && victim.deathYear) {
+                text += " at the age of " + (victim.deathYear - victim.birthYear);
+            } else if (victim.deathYear) {
+                text += " in " + victim.deathYear;
             }
             text += ".";
             container.append($("<div class='description'>" + text + "</div>"));
