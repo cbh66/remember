@@ -7,7 +7,7 @@ body {
     height: 100%;
 
     @media (orientation: portrait) and (max-width: 500px) {
-        font-size: 200%;
+        font-size: 150%;
     }
 
     @media (orientation: portrait) and (max-width: 1000px) {
@@ -15,18 +15,53 @@ body {
     }
 }
 
-div#memorial-container {
+div#memorial-container, div#reading-display, div#display {
     position: absolute;
     height: 100%;
     width: 100%;
     top: 0;
     left: 0;
     margin: 0;
+    text-align: center;
+
+    div.overlay {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        z-index: 100;
+        img {
+            position:absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 20px;
+        }
+
+        .button {
+            position: absolute;
+
+            @media (orientation: landscape) {
+                right: 5%;
+                top: 40%;
+            }
+
+
+            @media (orientation: portrait) {
+                right: 5%;
+                top: 45%;
+            }
+        }
+    }
 
     #memorial {
         opacity: 0;
         margin: auto;
-        text-align: center;
         vertical-align: middle;
         display: block;
 
@@ -37,20 +72,46 @@ div#memorial-container {
             width: 100%;
         }
 
-        #name {
-            font-size: 500%;
+        .name {
+            font-size: 250%;
         }
 
-        #years {
-            font-size: 300%;
-        }
-
-        #event {
-            font-size: 100%;
-        }
-
-        #facts {
+        .description {
             font-size: 150%;
         }
     }
+}
+
+.bottom {
+    position: fixed;
+    bottom: 0px;
+}
+
+.right {
+    right: 0px;
+}
+
+.center {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+a.button {
+    text-decoration: none;
+    display: inline-block;
+}
+
+a.button:hover {
+    background-color: #e67914;
+}
+
+.button {
+    padding: 1em 2em;
+    background-color: #111;
+    color: white;
+    cursor: pointer;
+}
+
+.round.button {
+    border-radius: 50%;
 }

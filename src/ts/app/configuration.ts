@@ -1,4 +1,6 @@
 import * as _ from "lodash";
+import * as $ from "jquery";
+import { Promise } from "es6-promise";
 
 
 export interface AppConfiguration {
@@ -19,15 +21,17 @@ function isConfig(obj: jsonObject): obj is AppConfiguration {
     });
 }
 
-export function getConfig(callback: (conf:AppConfiguration)=>void): void {
-    $.get("config.json", function (config: jsonObject) {
-        if (isConfig(config)) {
-            callback(config);
-        } else {
-            console.error(config);
-            throw "Badly formed configuration object";
-        }
-    }, "json");
+export function getConfig(): Promise<AppConfiguration> {
+    return new Promise((resolve, reject) => {
+        $.get("config.json", function (config: jsonObject) {
+            if (isConfig(config)) {
+                resolve(config);
+            } else {
+                reject(config);
+            }
+        }, "json");
+    })
+
 }
 
 export default getConfig;

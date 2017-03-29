@@ -1,10 +1,10 @@
-/// <reference path="../victim.d.ts" />
+/// <reference path="../lib/victim.d.ts" />
 import * as express from "express";
 import * as mongo from "mongodb";
 import * as path from "path";
 import * as _ from "lodash";
 import getConfig from "./configuration";
-import TimedQueue from "../TimedQueue"
+import TimedQueue from "../lib/TimedQueue";
 var MongoClient = mongo.MongoClient;
 var app = express();
 
@@ -12,12 +12,79 @@ const mongoUrl: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/l
 
 const buildDir = path.resolve(__dirname + "/../../");
 
-const config = getConfig(path.resolve(__dirname + "/../../config.json"), process.env);
+const config = getConfig(path.resolve(__dirname + "/../../resources/config.json"), process.env);
 console.log(config);
 
 function addSeconds(date: Date, seconds: number): Date {
     return new Date(date.getTime() + seconds*1000);
 }
+
+// const eventProportions = {
+//     "Holocaust": 430,
+//     "Bosnia": 290,
+//     "Armenia": 100,
+//     "Cambodia": 40,
+//     "Kosovo": 138,
+//     "Darfur": 2
+// };
+const eventProportions = {
+    "Armenia": 40,
+    "Bosnia": 160,
+    "Cambodia": 20,
+    "Darfur": 5,
+    "Holocaust": 300,
+    "Kosovo": 160,
+    "Rwanda": 130,
+    "South Sudan Civil War": 80,
+    "Sand Creek Massacre of Native Americans": 4,
+    "Argentine Dirty War": 90,
+    "Bangladesh Genocide": 3,
+    "East Timor Genocide": 8
+};
+// const eventProportions = {
+//     "Natural Causes": 3,
+//     "Duel": 1
+// };
+
+function normalizeProps(total: number) {
+    function randomlyRound(num: number) {
+        return Math.random() > 0.5 ? _.ceil(num) : _.floor(num);
+    }
+    const sum = _.reduce(eventProportions, (sum, val) => sum + val, 0);
+    const proportions = _.mapValues(eventProportions, (num: number) => num / sum);
+    return _.mapValues(proportions, percent => randomlyRound(percent * total));
+}
+/* Potential process for preventing repeats:
+ *  - hash all the last n names
+ *  - for each event with k specified names:
+ *    - fetch 2,3,4 (or something) times k names (maybe depending on how
+ *         many have already been hashed?)
+ *    - eliminate from this list anything that's already been hashed
+ *    - take the first k and add to a running list
+ *  - shuffle the list
+ *  - add to our cache
+ */
+function getNamesFromDb(names: mongo.Collection, quantity: number): Promise<Victim[]> {
+    const proportions = normalizeProps(quantity);
+    const promises: Promise<Victim[]>[] = _.values(_.mapValues(proportions, (amt, event) => {
+        return new Promise((resolve, reject) => {
+            names.aggregate([
+                { "$match": { "event": event } },
+                { "$sample": { "size": amt } }
+            ]).toArray(function (err, docs) {
+                console.log("chose", amt, "from", event);
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(docs);
+                }
+            });
+        });
+    }));
+    return Promise.all(promises).then((results) =>  _.shuffle(_.flatten(results)));
+}
+
+console.log(normalizeProps(1000));
 
 function randomNameSample(names: mongo.Collection, quantity: number, response: any, startTime: Date) {
     return names.aggregate([{
@@ -47,11 +114,50 @@ function setupAppWithDb(db: mongo.Db) {
     let cachedSchedule = new TimedQueue<Victim>();
     app.set('port', (process.env.PORT || 5000));
 
+    function retrieveValues(after: Date, quantity: number): Promise<Victim> {
+        const cachedValues = valuesFromCache(cachedSchedule.toArray(), after, quantity);
+        const amountRemaining = quantity - cachedValues.length;
+        return new Promise((resolve, reject) => {
+            if (amountRemaining) { // cache miss; add to cache
+                /* Possible multiple misses happen concurrently: then the cache
+                 * will be added to n times; but each insertion to the cache should
+                 * still be atomic.
+                 */
+                console.log("MISS!", "before", cachedValues.length);
+                // Possibly increase size to make the call to the db worth it
+                getNamesFromDb(names, Math.max(amountRemaining, config.batchSize))
+                    .then((docs: Victim[]) => {
+                        console.log(docs);
+                    // Ensures we always add to end, with or without concurrency
+                    const baseTime = cachedSchedule.getLatestScheduledTime() || new Date();
+                    const extendedDocs = _.map(docs, function (doc, index) {
+                        return _.extend(doc, {
+                            scheduledTime: addSeconds(baseTime, (index+1) * config.duration/1000)
+                        });
+                    });
+                    _.each(docs, doc => cachedSchedule.addLatest(doc, doc.scheduledTime));
+                    resolve([
+                        ...cachedValues,
+                        ..._.take(docs, amountRemaining)
+                    ]);
+                    console.log("MISS!", "after", cachedSchedule.length());
+                });
+            } else { // cache hit
+                console.log("HIT!", cachedValues.length);
+                resolve(cachedValues);
+            }
+        });
+    }
+
     app.use(express.static(__dirname));
     app.use("/build", express.static(buildDir));
 
     app.get('/', function(request, response) {
-      response.sendFile('index.html', {root: buildDir});
+      response.sendFile('resources/index.html', {root: buildDir});
+    });
+
+    app.get('/read', function (request, response) {
+        response.sendFile('resources/read.html', {root: buildDir});
     });
 
     app.get('/build/js/main.js', function(request, response) {
@@ -99,47 +205,15 @@ function setupAppWithDb(db: mongo.Db) {
             }
             before = addSeconds(after, quantity * config.duration/1000);
         }
-        console.log("quantity requested", quantity)
-
-        const cachedValues = valuesFromCache(cachedSchedule.toArray(), after, quantity);
-        const amountRemaining = quantity - cachedValues.length;
-
-        if (amountRemaining) { // cache miss; add to cache
-            /* Possible multiple misses happen concurrently: then the cache
-             * will be added to n times; but each insertion to the cache should
-             * still be atomic.
-             */
-            console.log("MISS!", "before", cachedValues.length);
-            // Possibly increase size to make the call to the db worth it
-            names.aggregate([{
-                "$sample": {
-                    "size": Math.max(amountRemaining, config.batchSize)
-                }
-            }]).toArray(function (err, docs) {
-                // Ensures we always add to end, with or without concurrency
-                const baseTime = cachedSchedule.getLatestScheduledTime() || new Date();
-                docs = _.map(docs, function (doc, index) {
-                    return _.extend(doc, {
-                        scheduledTime: addSeconds(baseTime, (index+1) * config.duration/1000)
-                    });
-                });
-                _.each(docs, doc => cachedSchedule.addLatest(doc, doc.scheduledTime))
-                if (err) {
-                    response.status(500).end();
-                } else {
-                    response.status(200);
-                    response.send([
-                        ...cachedValues,
-                        ..._.take(docs, amountRemaining)
-                    ]);
-                }
-                console.log("MISS!", "after", cachedSchedule.length());
-            });
-        } else { // cache hit
-            console.log("HIT!", cachedValues.length);
+        console.log("quantity requested", quantity);
+        //TODO: reduce the quantity if it's ridiculously high
+        retrieveValues(after, quantity).then((values) => {
             response.status(200);
-            response.send(cachedValues);
-        }
+            response.send(values);
+        }).catch((err) => {
+            console.error("Error requesting", quantity, "values after", after, err);
+            response.status(500).end();
+        })
     });
 }
 

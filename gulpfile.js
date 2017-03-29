@@ -7,6 +7,7 @@ var tsify = require("tsify");
 var uglify = require("gulp-uglify");
 var sourcemaps = require("gulp-sourcemaps");
 var buffer = require("vinyl-buffer");
+var es = require('event-stream');
 var sass = require("gulp-sass");
 var tsc = require('gulp-typescript');
 var typedoc = require('gulp-typedoc');
@@ -70,38 +71,56 @@ gulp.task("styles-dev", function () {
 	.pipe(gulp.dest('build/css'));
 });
 
-gulp.task("bundle-dev", function () {
+
+var tasks = [{source: "src/ts/controller.ts", dest: "main.min.js"},
+	     {source: "src/ts/read.ts", dest: "read.js"}];
+
+function bundleFileDev(src, dest) {
     return browserify({
         basedir: '.',
         debug: true,
-	entries: ['src/ts/controller.ts'],
+	entries: [src],
 	cache: {},
 	packageCache: {}
     })
     .plugin(tsify, {project: "config/tsdev.json"})
     .bundle()
     .on('error', onCompilationError)
-    .pipe(source('main.js'))
+    .pipe(source(dest))
     .pipe(gulp.dest("build/js"));
-});
+}
 
-gulp.task("bundle", function () {
-    return browserify({
+function bundleFile (src, dest) {
+   return browserify({
 	    basedir: '.',
 	    debug: false,
-            entries: ['src/ts/controller.ts'],
+            entries: [src],
             cache: {},
             packageCache: {}
     })
     .plugin(tsify, {project: "config/tsbuild.json"})
     .bundle()
     .on('error', onCompilationError)
-    .pipe(source('main.min.js'))
+    .pipe(source(dest))
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))
     .pipe(uglify())
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest('build/js'));
+}
+
+gulp.task("bundle-dev", function () {
+	var bundle = tasks.map(function (entry) {
+		return bundleFileDev(entry.source, entry.dest);
+	    });
+	return es.merge(bundle);
+});
+
+gulp.task("bundle", function () {
+	var bundle = tasks.map(function (entry) {
+		return bundleFile(entry.source, entry.dest);
+	    });
+	return es.merge(bundle);
 });
 
 gulp.task("ts", function () {
@@ -122,8 +141,8 @@ gulp.task("hydrate", function () {
 });
 
 gulp.task("copyStatic", function () {
-    return gulp.src("./src/**/*.{html,json}")
-    .pipe(gulp.dest("./build"));
+    return gulp.src("./src/resources/**/*")
+        .pipe(gulp.dest("./build/resources"));
 });
 
 gulp.task("startdb", ["hydrate"], function () {
@@ -150,7 +169,7 @@ gulp.task("dev", ["ts", "styles-dev", "bundle-dev", "copyStatic"]);
 gulp.task("default", ["ts", "styles", "bundle", "copyStatic"]);
 gulp.task("run", ["default", "startdb", "startserver"]);
 gulp.task("run-dev", ["dev", "startdb", "startserver"]);
-gulp.task("watch", ["run"], function () {
+gulp.task("watch", ["run-dev"], function () {
     gulp.watch("./src/**/*.ts", ["ts", "bundle-dev"]);
     gulp.watch("./src/styles/**/*.scss", ["styles-dev"]);
     gulp.watch("./src/**/*.{html,json}", ["copyStatic"]);

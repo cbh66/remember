@@ -8,6 +8,7 @@
         "noEmitOnError": true,
         "types": [
             "lodash",
+	    "jquery",
             "mocha",
             "chai",
             "sinon"
