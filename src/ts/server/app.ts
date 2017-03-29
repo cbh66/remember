@@ -19,13 +19,27 @@ function addSeconds(date: Date, seconds: number): Date {
     return new Date(date.getTime() + seconds*1000);
 }
 
+// const eventProportions = {
+//     "Holocaust": 430,
+//     "Bosnia": 290,
+//     "Armenia": 100,
+//     "Cambodia": 40,
+//     "Kosovo": 138,
+//     "Darfur": 2
+// };
 const eventProportions = {
-    "Holocaust": 430,
-    "Bosnia": 290,
-    "Armenia": 100,
-    "Cambodia": 40,
-    "Kosovo": 138,
-    "Darfur": 2
+    "Armenia": 40,
+    "Bosnia": 160,
+    "Cambodia": 20,
+    "Darfur": 5,
+    "Holocaust": 300,
+    "Kosovo": 160,
+    "Rwanda": 130,
+    "South Sudan Civil War": 80,
+    "Sand Creek Massacre of Native Americans": 4,
+    "Argentine Dirty War": 90,
+    "Bangladesh Genocide": 3,
+    "East Timor Genocide": 8
 };
 // const eventProportions = {
 //     "Natural Causes": 3,
