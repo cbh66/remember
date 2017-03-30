@@ -115,22 +115,35 @@ function setupAppWithDb(db: mongo.Db) {
     app.set('port', (process.env.PORT || 5000));
 
     function retrieveValues(after: Date, quantity: number): Promise<Victim> {
-        const cachedValues = valuesFromCache(cachedSchedule.toArray(), after, quantity);
+        const cachedValuesAndTimes = cachedSchedule.toArray();
+        const cachedValues = valuesFromCache(cachedValuesAndTimes, after, quantity);
         const amountRemaining = quantity - cachedValues.length;
         return new Promise((resolve, reject) => {
             if (amountRemaining) { // cache miss; add to cache
                 /* Possible multiple misses happen concurrently: then the cache
                  * will be added to n times; but each insertion to the cache should
-                 * still be atomic.
+                 * still be atomic.  Only potential pitfall is the cache used for deduplication
                  */
                 console.log("MISS!", "before", cachedValues.length);
+                let hashedCacheValues: { [name:string]: string[] } = {};
+                _.each(_.takeRight(cachedValuesAndTimes, 1000), (valAndTime: [Date, Victim]) => {
+                    const [ , {name, event}] = valAndTime;
+                    if (hashedCacheValues[name]) {
+                        hashedCacheValues[name].push(event);
+                    } else {
+                        hashedCacheValues[name] = [event];
+                    }
+                });
                 // Possibly increase size to make the call to the db worth it
                 getNamesFromDb(names, Math.max(amountRemaining, config.batchSize))
                     .then((docs: Victim[]) => {
-                        console.log(docs);
                     // Ensures we always add to end, with or without concurrency
                     const baseTime = cachedSchedule.getLatestScheduledTime() || new Date();
-                    const extendedDocs = _.map(docs, function (doc, index) {
+                    docs = _.filter(docs, (doc) => {
+                        const eventNames: string[] | undefined = hashedCacheValues[doc.name];
+                        return !eventNames || !_.includes(eventNames, doc.event);
+                    });
+                    const extendedDocs = _.map(docs, function (doc, index) { // de-duping here?
                         return _.extend(doc, {
                             scheduledTime: addSeconds(baseTime, (index+1) * config.duration/1000)
                         });
