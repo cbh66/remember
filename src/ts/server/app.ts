@@ -77,7 +77,7 @@ function getNamesFromDb(names: mongo.Collection, quantity: number): Promise<Vict
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(docs);
+                    resolve(_.take(docs, amt));
                 }
             });
         });
