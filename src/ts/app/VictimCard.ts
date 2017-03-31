@@ -10,7 +10,8 @@ let eventToTitle: { [key: string]: string } = {
     "Cambodia": "the Cambodian Genocide",
     "Rwanda": "the Rwandan Genocide",
     "Bosnia": "the Bosnian Genocide",
-    "Kosovo": "the Kosovo War"
+    "Kosovo": "the Kosovo War",
+    "Darfur": "the Darfur Genocide"
 };
 
 export default class VictimCard {
