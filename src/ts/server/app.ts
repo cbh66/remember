@@ -28,16 +28,17 @@ function addSeconds(date: Date, seconds: number): Date {
 //     "Darfur": 2
 // };
 const eventProportions = {
+    "Syria": 220,
     "Armenia": 40,
-    "Bosnia": 160,
+    "Bosnia": 130,
     "Cambodia": 20,
     "Darfur": 5,
-    "Holocaust": 300,
-    "Kosovo": 160,
+    "Holocaust": 220,
+    "Kosovo": 130,
     "Rwanda": 130,
-    "South Sudan Civil War": 80,
+    "South Sudan Civil War": 40,
     "Sand Creek Massacre of Native Americans": 4,
-    "Argentine Dirty War": 90,
+    "Argentine Dirty War": 50,
     "Bangladesh Genocide": 3,
     "East Timor Genocide": 8
 };
