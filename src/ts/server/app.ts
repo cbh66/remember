@@ -46,15 +46,20 @@ const eventProportions = {
 //     "Natural Causes": 3,
 //     "Duel": 1
 // };
+function proportionPercents() {
+    const sum = _.reduce(eventProportions, (sum, val) => sum + val, 0);
+    return _.mapValues(eventProportions, (num: number) => num / sum);
+}
+
+function randomlyRound(num: number) {
+    return Math.random() > 0.5 ? _.ceil(num) : _.floor(num);
+}
 
 function normalizeProps(total: number) {
-    function randomlyRound(num: number) {
-        return Math.random() > 0.5 ? _.ceil(num) : _.floor(num);
-    }
-    const sum = _.reduce(eventProportions, (sum, val) => sum + val, 0);
-    const proportions = _.mapValues(eventProportions, (num: number) => num / sum);
+    const proportions = proportionPercents();
     return _.mapValues(proportions, percent => randomlyRound(percent * total));
 }
+
 /* Potential process for preventing repeats:
  *  - hash all the last n names
  *  - for each event with k specified names:
@@ -82,27 +87,11 @@ function getNamesFromDb(names: mongo.Collection, quantity: number): Promise<Vict
             });
         });
     }));
-    return Promise.all(promises).then((results) =>  _.shuffle(_.flatten(results)));
-}
-
-console.log(normalizeProps(1000));
-
-function randomNameSample(names: mongo.Collection, quantity: number, response: any, startTime: Date) {
-    return names.aggregate([{
-            "$sample": { "size": quantity }
-        }]).toArray(function (err, docs) {
-            docs = _.map(docs, function (doc, index) {
-                return _.extend(doc, {
-                    scheduledTime: addSeconds(startTime, (index * config.duration/1000) + 1)
-                });
-            });
-            if (err) {
-                response.status(500).end();
-            } else {
-                response.status(200);
-                response.send(docs);
-            }
-        });
+    return Promise.all(promises).then((results: Victim[][]) =>  {
+        const totalLength = _.reduce(results, (sum, result) =>  sum + result.length, 0);
+        console.log("Total grabbed:", totalLength);
+        return _.shuffle(_.flatten(results));
+    });
 }
 
 function valuesFromCache<T>(arr: [Date, T][], after: Date, qty: number): T[] {
@@ -182,7 +171,19 @@ function setupAppWithDb(db: mongo.Db) {
 
     app.get('/api/random', function(request, response) {
         let quantity: number = +(request.query.amount || 3);
-        randomNameSample(names, quantity, response, new Date());
+        getNamesFromDb(names, quantity).then((values) => {
+            return _.map(values, function (doc, index) {
+                return _.extend(doc, {
+                    scheduledTime: addSeconds(new Date(), (index+1) * config.duration/1000)
+                });
+            });
+        }).then((values) => {
+            response.status(200);
+            response.send(values);
+        }).catch((err) => {
+            console.error("Error requesting", quantity, "random values", err);
+            response.status(500).end();
+        })
     });
 
     app.get('/api/schedule', function(request, response) {
