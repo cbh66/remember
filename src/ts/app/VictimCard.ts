@@ -5,11 +5,13 @@ import { Promise } from "es6-promise";
 let eventToTitle: { [key: string]: string } = {
     "Armenia": "the Armenian Genocide",
     "Holocaust": "the Holocaust",
+    "Syria": "the Syrian Civil War",
     "Native American Genocides": "the Genocidal Massacres of Native Americans",
     "Cambodia": "the Cambodian Genocide",
     "Rwanda": "the Rwandan Genocide",
     "Bosnia": "the Bosnian Genocide",
-    "Kosovo": "the Kosovo War"
+    "Kosovo": "the Kosovo War",
+    "Darfur": "the Darfur Genocide"
 };
 
 export default class VictimCard {
