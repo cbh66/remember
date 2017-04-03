@@ -48,7 +48,7 @@ export default class ReadingDisplay {
     }
 
     public getAndAddNewVictims(): Promise<any> {
-        if (!this.loadingNewVictims) {
+        if (!this.loadingNewVictims && this.victimQueue.getLength() < this.config.maxQueueSize*2 &&) {
             this.loadingNewVictims = true;
             return this.getNewVictims().then((victims) => this.addNewVictims(victims))
                 .then(() => {this.loadingNewVictims = false; return;})
