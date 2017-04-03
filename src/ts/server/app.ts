@@ -170,7 +170,7 @@ function setupAppWithDb(db: mongo.Db) {
     });
 
     app.get('/api/random', function(request, response) {
-        let quantity: number = +(request.query.amount || 3);
+        let quantity: number = +(request.query.amount || request.query.next || 3);
         getNamesFromDb(names, quantity).then((values) => {
             return _.map(values, function (doc, index) {
                 return _.extend(doc, {
