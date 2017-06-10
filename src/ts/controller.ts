@@ -1,8 +1,8 @@
 import * as $ from "jquery";
-import Memorial from "./app/Memorial";
 import { getConfig } from "./app/configuration";
+import Memorial from "./app/Memorial";
 
-$(document).ready(function () {
+$(document).ready(() => {
     getConfig()
         .then((config) => new Memorial($("#memorial-container"), config)
             .getAndAddNewVictims())

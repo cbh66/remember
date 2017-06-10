@@ -1,10 +1,10 @@
 /// <reference path="../lib/victim.d.ts" />
+import { Promise } from "es6-promise";
 import * as $ from "jquery";
 import * as _ from "lodash";
 import Queue from "../lib/Queue";
-import { Promise } from "es6-promise";
-import VictimCard from "./VictimCard";
 import { AppConfiguration } from "./configuration";
+import VictimCard from "./VictimCard";
 
 
 export default class ReadingDisplay {
@@ -19,7 +19,7 @@ export default class ReadingDisplay {
         this.victimQueue = new Queue<Victim>();
         this.displayContainer = $("<div id='display'></div>");
         this.victimCard = new VictimCard(this.displayContainer);
-        this.nextButton = $("<a class='bottom right next button'>Next ❯</a>")
+        this.nextButton = $("<a class='bottom right next button'>Next ❯</a>");
         this.displayContainer.append(this.nextButton);
         container.append(this.displayContainer);
         $(window).keypress((event) => {
@@ -34,25 +34,36 @@ export default class ReadingDisplay {
     }
 
     public moveToNextVictim(): void {
-        if (this.fadingOut) return;
-        let victim = this.victimQueue.dequeue();
-        if (!victim) return;
+        if (this.fadingOut) {
+            return;
+        }
+        const victim = this.victimQueue.dequeue();
+        if (!victim) {
+            return;
+        }
         this.fadingOut = true;
         this.victimCard.fadeOut(this.config.fadeOutTime);
         setTimeout(() => {
-            if (!victim) return;
+            if (!victim) {
+                return;
+            }
             this.victimCard.fadeInNewVictim(victim, this.config.fadeInTime)
-                .then(() => this.fadingOut = false)
+                .then(() => this.fadingOut = false);
         }, this.config.fadeOutTime);
         this.getAndAddNewVictims();
     }
 
     public getAndAddNewVictims(): Promise<any> {
-        if (!this.loadingNewVictims && this.victimQueue.getLength() < this.config.maxQueueSize*2) {
+        if (!this.loadingNewVictims && this.victimQueue.getLength() < this.config.maxQueueSize * 2) {
             this.loadingNewVictims = true;
             return this.getNewVictims().then((victims) => this.addNewVictims(victims))
-                .then(() => {this.loadingNewVictims = false; return;})
-                .catch(() => {this.loadingNewVictims = false; return});
+                .then(() => {
+                    this.loadingNewVictims = false;
+                    return;
+                }).catch(() => {
+                    this.loadingNewVictims = false;
+                    return;
+                });
         } else {
             return Promise.resolve();
         }
@@ -60,8 +71,8 @@ export default class ReadingDisplay {
 
     private getNewVictims(): Promise<Victim[]> {
         const request = {
-            next: this.config.batchSize
-        }
+            next: this.config.batchSize,
+        };
         return new Promise((resolve, reject) => {
             $.get("api/random", request, (data: Victim[]) => {
                 resolve(data);
@@ -74,4 +85,4 @@ export default class ReadingDisplay {
             this.victimQueue.enqueue(victim);
         });
     }
-};
+}

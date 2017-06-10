@@ -1,10 +1,10 @@
 import * as $ from "jquery";
-import ReadingDisplay from "./app/ReadingDisplay";
-import Overlay from "./app/Overlay";
 import { getConfig } from "./app/configuration";
+import Overlay from "./app/Overlay";
+import ReadingDisplay from "./app/ReadingDisplay";
 
-$(document).ready(function () {
-    new Overlay($("#reading-display"));
+$(document).ready(() => {
+    const overlay = new Overlay($("#reading-display"));
     getConfig()
         .then((config) => {
             const display = new ReadingDisplay($("#reading-display"), config);
@@ -13,4 +13,5 @@ $(document).ready(function () {
             });
         })
         .catch((conf) => console.error("Badly formed configuration", conf));
+    return overlay;
 });

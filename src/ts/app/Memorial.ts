@@ -1,24 +1,24 @@
 /// <reference path="../lib/victim.d.ts" />
+import { Promise } from "es6-promise";
 import * as $ from "jquery";
 import * as _ from "lodash";
 import TimedQueue from "../lib/TimedQueue";
-import { Promise } from "es6-promise";
-import VictimCard from "./VictimCard";
 import { AppConfiguration } from "./configuration";
+import VictimCard from "./VictimCard";
 
 enum ActionType {
     fadeIn,
-    fadeOut
+    fadeOut,
 }
 interface Action {
-    type: ActionType,
-    victim?: Victim  // if action type is fadeIn
+    type: ActionType;
+    victim?: Victim;  // if action type is fadeIn
 }
 
 export default class Memorial {
     private victimCard: VictimCard;
     private currentlyLoadingActions = false;
-    private currentAction:  Promise<void> = Promise.resolve<void>(undefined);
+    private currentAction: Promise<void> = Promise.resolve<void>(undefined);
     private actionQueue: TimedQueue<Action>;
 
     constructor(public container: JQuery, public config: AppConfiguration) {
@@ -26,7 +26,7 @@ export default class Memorial {
         this.actionQueue = new TimedQueue<Action>({
             callback: (action: Action): void => {
                 this.processAction(action);
-                if (this.actionQueue.length() < this.config.maxQueueSize*2 &&
+                if (this.actionQueue.length() < this.config.maxQueueSize * 2 &&
                     !this.currentlyLoadingActions) {
                     this.currentlyLoadingActions = true;
                     this.getNewVictims()
@@ -34,8 +34,12 @@ export default class Memorial {
                         .then(() => this.currentlyLoadingActions = false)
                         .catch(() => this.currentlyLoadingActions = false);
                 }
-            }
+            },
         });
+    }
+
+    public getAndAddNewVictims() {
+        return this.getNewVictims().then((victims) => this.addNewVictims(victims));
     }
 
     private processAction(action: Action): void {
@@ -53,19 +57,15 @@ export default class Memorial {
         });
     }
 
-    public getAndAddNewVictims() {
-        return this.getNewVictims().then((victims) => this.addNewVictims(victims));
-    }
-
     private getNewVictims(): Promise<Victim[]> {
         const request = {
             next: this.config.batchSize,
             // TODO: max of latest time and current time
-            after: this.actionQueue.getLatestScheduledTime() || new Date()
-        }
+            after: this.actionQueue.getLatestScheduledTime() || new Date(),
+        };
         return new Promise((resolve, reject) => {
-            $.get("api/schedule", request, function (data: Victim[]) {
-                _.each(data, function (victim: Victim) {
+            $.get("api/schedule", request, (data: Victim[]) => {
+                _.each(data, (victim: Victim) => {
                     victim.scheduledTime = new Date(victim.scheduledTime);
                 });
                 resolve(data);
@@ -75,14 +75,15 @@ export default class Memorial {
 
     private addNewVictims(victims: Victim[]) {
         _.each(victims, (victim) => {
-            const fadeOutPrev = new Date(victim.scheduledTime.getTime() - this.config.fadeOutTime)
-            if (victim.scheduledTime > this.actionQueue.getLatestScheduledTime()) {
+            const fadeOutPrev = new Date(victim.scheduledTime.getTime() - this.config.fadeOutTime);
+            const latestTime = this.actionQueue.getLatestScheduledTime();
+            if (!latestTime || victim.scheduledTime > latestTime) {
                 this.actionQueue.addLatest({
-                    type: ActionType.fadeOut
+                    type: ActionType.fadeOut,
                 }, fadeOutPrev);
                 this.actionQueue.addLatest({
                     type: ActionType.fadeIn,
-                    victim
+                    victim,
                 }, victim.scheduledTime);
             } else {
                 console.warn("EARLIER:", victim.scheduledTime,
@@ -90,4 +91,4 @@ export default class Memorial {
             }
         });
     }
-};
+}

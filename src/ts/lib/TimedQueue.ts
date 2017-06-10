@@ -1,4 +1,4 @@
-import Queue from './Queue';
+import Queue from "./Queue";
 
 // TODO:
 //   Specify how you need to schedule things in order
@@ -60,7 +60,7 @@ class TimedQueue<T> {
      * @param {TimedQueue.Options<T>} opts Options to set.
      */
     public setOptions(opts: TimedQueue.Options<T>): void {
-        this.callback = opts.callback || function (x: T) {}   // noop
+        this.callback = opts.callback || ((x: T) => { /* noop */ });
         this.updateFrequency = opts.updateFrequency || 1000;
     }
 
@@ -74,8 +74,8 @@ class TimedQueue<T> {
      */
     public addLatest(object: T, scheduledTime: Date): void {
         if (this.latestTime && scheduledTime < this.latestTime) {
-            throw new TimedQueue.OutOfOrderDateError('Date ' + scheduledTime +
-                    ' is earlier than prior added date ' + this.latestTime);
+            throw new TimedQueue.OutOfOrderDateError("Date " + scheduledTime +
+                    " is earlier than prior added date " + this.latestTime);
         }
         this.queue.enqueue([scheduledTime, object]);
         this.latestTime = scheduledTime;
@@ -104,7 +104,7 @@ class TimedQueue<T> {
      * given, the array is truncated to that size.
      * @param {number} amount
      */
-    public toArray(amount?: number): [Date, T][] {
+    public toArray(amount?: number): Array<[Date, T]> {
         return this.queue.toArray(amount);
     }
 
@@ -116,10 +116,10 @@ class TimedQueue<T> {
      * @private
      */
     private watch(): void {
-        let nextPair = this.queue.peek();
+        const nextPair = this.queue.peek();
         if (nextPair) {
-            let [nextTime, ] = nextPair;
-            let waitTime = nextTime.getTime() - new Date().getTime();
+            const [nextTime] = nextPair;
+            const waitTime = nextTime.getTime() - new Date().getTime();
             if (waitTime <= 0) {
                 this.processNextObject();
             } else {
@@ -137,15 +137,17 @@ class TimedQueue<T> {
      * @private
      */
     private processNextObject(): void {
-        let nextPair = this.queue.dequeue();
-        if (!nextPair) return;
-        let [ , nextObject] = nextPair;
+        const nextPair = this.queue.dequeue();
+        if (!nextPair) {
+            return;
+        }
+        const [ , nextObject] = nextPair;
         this.callback(nextObject);
         this.watch();      // Keep watching for the next objects
     }
 }
 
-
+// TODO: better way to organize these types...?
 module TimedQueue {
     /**
      * An error thrown when dates are inserted out of order.
@@ -156,13 +158,12 @@ module TimedQueue {
             super(message);
             this.message = this.name + ": " + message;
         }
-    };
+    }
     /**
      * A type for callbacks that can process T objects.
      */
-    export interface CallbackType<T> {
-        (object: T): void;
-    }
+    export type CallbackType<T> = (object: T) => void;
+
     /**
      * Options that can be specified for a TimedQueue.
      */

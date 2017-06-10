@@ -1,14 +1,14 @@
 /// <reference path="../lib/victim.d.ts" />
 import * as express from "express";
+import * as _ from "lodash";
 import * as mongo from "mongodb";
 import * as path from "path";
-import * as _ from "lodash";
-import getConfig from "./configuration";
 import TimedQueue from "../lib/TimedQueue";
-var MongoClient = mongo.MongoClient;
-var app = express();
+import getConfig from "./configuration";
+const MongoClient = mongo.MongoClient;
+const app = express();
 
-const mongoUrl: string = process.env.MONGODB_URI || 'mongodb://localhost:27017/local';
+const mongoUrl: string = process.env.MONGODB_URI || "mongodb://localhost:27017/local";
 
 const buildDir = path.resolve(__dirname + "/../../");
 
@@ -16,7 +16,7 @@ const config = getConfig(path.resolve(__dirname + "/../../resources/config.json"
 console.log(config);
 
 function addSeconds(date: Date, seconds: number): Date {
-    return new Date(date.getTime() + seconds*1000);
+    return new Date(date.getTime() + seconds * 1000);
 }
 
 // const eventProportions = {
@@ -25,29 +25,29 @@ function addSeconds(date: Date, seconds: number): Date {
 //     "Armenia": 100,
 //     "Cambodia": 40,
 //     "Kosovo": 138,
-//     "Darfur": 2
+//     "Darfur": 2,
+// };
+// const eventProportions = {
+//     "Syria": 220,
+//     "Armenia": 40,
+//     "Bosnia": 130,
+//     "Cambodia": 20,
+//     "Darfur": 5,
+//     "Holocaust": 220,
+//     "Kosovo": 130,
+//     "Rwanda": 130,
+//     "South Sudan Civil War": 40,
+//     "Sand Creek Massacre of Native Americans": 4,
+//     "Argentine Dirty War": 50,
+//     "Bangladesh Genocide": 3,
+//     "East Timor Genocide": 8,
 // };
 const eventProportions = {
-    "Syria": 220,
-    "Armenia": 40,
-    "Bosnia": 130,
-    "Cambodia": 20,
-    "Darfur": 5,
-    "Holocaust": 220,
-    "Kosovo": 130,
-    "Rwanda": 130,
-    "South Sudan Civil War": 40,
-    "Sand Creek Massacre of Native Americans": 4,
-    "Argentine Dirty War": 50,
-    "Bangladesh Genocide": 3,
-    "East Timor Genocide": 8
+    "Natural Causes": 3,
+    "Duel": 1
 };
-// const eventProportions = {
-//     "Natural Causes": 3,
-//     "Duel": 1
-// };
 function proportionPercents() {
-    const sum = _.reduce(eventProportions, (sum, val) => sum + val, 0);
+    const sum = _.reduce(eventProportions, (soFar, val) => soFar + val, 0);
     return _.mapValues(eventProportions, (num: number) => num / sum);
 }
 
@@ -57,7 +57,7 @@ function randomlyRound(num: number) {
 
 function normalizeProps(total: number) {
     const proportions = proportionPercents();
-    return _.mapValues(proportions, percent => randomlyRound(percent * total));
+    return _.mapValues(proportions, (percent) => randomlyRound(percent * total));
 }
 
 /* Potential process for preventing repeats:
@@ -72,12 +72,12 @@ function normalizeProps(total: number) {
  */
 function getNamesFromDb(names: mongo.Collection, quantity: number): Promise<Victim[]> {
     const proportions = normalizeProps(quantity);
-    const promises: Promise<Victim[]>[] = _.values(_.mapValues(proportions, (amt, event) => {
+    const promises: Array<Promise<Victim[]>> = _.values(_.mapValues(proportions, (amt, event) => {
         return new Promise((resolve, reject) => {
             names.aggregate([
-                { "$match": { "event": event } },
-                { "$sample": { "size": amt } }
-            ]).toArray(function (err, docs) {
+                { $match: { event } },
+                { $sample: { size: amt } },
+            ]).toArray((err, docs) => {
                 console.log("chose", amt, "from", event);
                 if (err) {
                     reject(err);
@@ -94,15 +94,16 @@ function getNamesFromDb(names: mongo.Collection, quantity: number): Promise<Vict
     });
 }
 
-function valuesFromCache<T>(arr: [Date, T][], after: Date, qty: number): T[] {
-    const index = _.sortedIndexBy<[Date, T]>(arr, [after, null], item => item[0]);
-    return _.map(arr.slice(index, index + qty), item => item[1]);
+function valuesFromCache<T>(arr: Array<[Date, T]>, after: Date, qty: number): T[] {
+    const index = _.sortedIndexBy<[Date, T]>(arr, [after, null],
+                    (item) => item[0]);
+    return _.map(arr.slice(index, index + qty), (item) => item[1]);
 }
 
 function setupAppWithDb(db: mongo.Db) {
-    let names = db.collection('names');
-    let cachedSchedule = new TimedQueue<Victim>();
-    app.set('port', (process.env.PORT || 5000));
+    const names = db.collection("names");
+    const cachedSchedule = new TimedQueue<Victim>();
+    app.set("port", (process.env.PORT || 5000));
 
     function retrieveValues(after: Date, quantity: number): Promise<Victim> {
         const cachedValues = valuesFromCache(cachedSchedule.toArray(), after, quantity);
@@ -117,18 +118,18 @@ function setupAppWithDb(db: mongo.Db) {
                 // Possibly increase size to make the call to the db worth it
                 getNamesFromDb(names, Math.max(amountRemaining, config.batchSize))
                     .then((docs: Victim[]) => {
-                        console.log(docs);
+                    console.log(docs);
                     // Ensures we always add to end, with or without concurrency
                     const baseTime = cachedSchedule.getLatestScheduledTime() || new Date();
-                    const extendedDocs = _.map(docs, function (doc, index) {
+                    const extendedDocs = _.map(docs, (doc, index) => {
                         return _.extend(doc, {
-                            scheduledTime: addSeconds(baseTime, (index+1) * config.duration/1000)
+                            scheduledTime: addSeconds(baseTime, (index + 1) * config.duration / 1000),
                         });
                     });
-                    _.each(docs, doc => cachedSchedule.addLatest(doc, doc.scheduledTime));
+                    _.each(docs, (doc) => cachedSchedule.addLatest(doc, doc.scheduledTime));
                     resolve([
                         ...cachedValues,
-                        ..._.take(docs, amountRemaining)
+                        ..._.take(docs, amountRemaining),
                     ]);
                     console.log("MISS!", "after", cachedSchedule.length());
                 });
@@ -142,24 +143,24 @@ function setupAppWithDb(db: mongo.Db) {
     app.use(express.static(__dirname));
     app.use("/build", express.static(buildDir));
 
-    app.get('/', function(request, response) {
-      response.sendFile('resources/index.html', {root: buildDir});
+    app.get("/", (request, response) => {
+      response.sendFile("resources/index.html", {root: buildDir});
     });
 
-    app.get('/read', function (request, response) {
-        response.sendFile('resources/read.html', {root: buildDir});
+    app.get("/read", (request, response) => {
+        response.sendFile("resources/read.html", {root: buildDir});
     });
 
-    app.get('/build/js/main.js', function(request, response) {
-        response.sendFile('js/main.min.js', {root: buildDir});
+    app.get("/build/js/main.js", (request, response) => {
+        response.sendFile("js/main.min.js", {root: buildDir});
     });
 
-    app.get('/config.json', function (request, response) {
+    app.get("/config.json", (request, response) => {
         response.json(config);
-    })
+    });
 
-    app.get('/api/all', function(request, response) {
-        names.find({}).toArray(function (err, docs) {
+    app.get("/api/all", (request, response) => {
+        names.find({}).toArray((err, docs) => {
             if (err) {
                 response.status(500).end();
             } else {
@@ -169,12 +170,12 @@ function setupAppWithDb(db: mongo.Db) {
         });
     });
 
-    app.get('/api/random', function(request, response) {
-        let quantity: number = +(request.query.amount || request.query.next || 3);
+    app.get("/api/random", (request, response) => {
+        const quantity: number = +(request.query.amount || request.query.next || 3);
         getNamesFromDb(names, quantity).then((values) => {
-            return _.map(values, function (doc, index) {
+            return _.map(values, (doc, index) => {
                 return _.extend(doc, {
-                    scheduledTime: addSeconds(new Date(), (index+1) * config.duration/1000)
+                    scheduledTime: addSeconds(new Date(), (index + 1) * config.duration / 1000),
                 });
             });
         }).then((values) => {
@@ -183,11 +184,11 @@ function setupAppWithDb(db: mongo.Db) {
         }).catch((err) => {
             console.error("Error requesting", quantity, "random values", err);
             response.status(500).end();
-        })
+        });
     });
 
-    app.get('/api/schedule', function(request, response) {
-        let params = request.query;
+    app.get("/api/schedule", (request, response) => {
+        const params = request.query;
         let quantity: number = +(params.next);
         let after: Date;
         if (params.after) {
@@ -205,30 +206,30 @@ function setupAppWithDb(db: mongo.Db) {
             if (!quantity) {
                 quantity = 100;
             }
-            before = addSeconds(after, quantity * config.duration/1000);
+            before = addSeconds(after, quantity * config.duration / 1000);
         }
         console.log("quantity requested", quantity);
-        //TODO: reduce the quantity if it's ridiculously high
+        // TODO: reduce the quantity if it's ridiculously high
         retrieveValues(after, quantity).then((values) => {
             response.status(200);
             response.send(values);
         }).catch((err) => {
             console.error("Error requesting", quantity, "values after", after, err);
             response.status(500).end();
-        })
+        });
     });
 }
 
 
-MongoClient.connect(mongoUrl, function (err: mongo.MongoError, db: mongo.Db) {
+MongoClient.connect(mongoUrl, (err: mongo.MongoError, db: mongo.Db) => {
     if (err) {
         console.error("Error connecting to database:");
         console.error(err);
     } else {
         console.log("Connected to database");
         setupAppWithDb(db);
-        app.listen(app.get('port'), function() {
-          console.log('Node app is running on port', app.get('port'));
+        app.listen(app.get("port"), () => {
+          console.log("Node app is running on port", app.get("port"));
         });
     }
 });

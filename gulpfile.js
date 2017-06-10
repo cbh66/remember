@@ -4,6 +4,7 @@ var childProcess = require("child_process");
 var browserify = require("browserify");
 var source = require('vinyl-source-stream');
 var tsify = require("tsify");
+var tslint = require("gulp-tslint");
 var uglify = require("gulp-uglify");
 var sourcemaps = require("gulp-sourcemaps");
 var buffer = require("vinyl-buffer");
@@ -14,7 +15,6 @@ var typedoc = require('gulp-typedoc');
 var fs = require('fs');
 
 var tsServerProject = tsc.createProject('config/tsserver.json');
-
 var mongoPath = "./mongo";
 
 function onCompilationError(error) {
@@ -130,6 +130,18 @@ gulp.task("ts", function () {
     .pipe(gulp.dest('./build/ts'));
 });
 
+gulp.task("tslint", function () {
+    return gulp.src(["src/**/*.ts", "!src/**/*.spec.ts"])
+        .pipe(tslint({
+            formatter: "verbose",
+            configuration: "./config/tslint.json"
+        }))
+        .pipe(tslint.report({
+            summarizeFailureOutput: true,
+            reportLimit: 50
+	}));
+});
+
 
 gulp.task("hydrate", function () {
     return gulp.src("./hydrate.ts")
@@ -165,12 +177,12 @@ gulp.task("startserver", ["ts"], function () {
     });
 });
 
-gulp.task("dev", ["ts", "styles-dev", "bundle-dev", "copyStatic"]);
-gulp.task("default", ["ts", "styles", "bundle", "copyStatic"]);
+gulp.task("dev", ["ts", "tslint", "styles-dev", "bundle-dev", "copyStatic"]);
+gulp.task("default", ["ts", "tslint", "styles", "bundle", "copyStatic"]);
 gulp.task("run", ["default", "startdb", "startserver"]);
 gulp.task("run-dev", ["dev", "startdb", "startserver"]);
 gulp.task("watch", ["run-dev"], function () {
-    gulp.watch("./src/**/*.ts", ["ts", "bundle-dev"]);
+    gulp.watch("./src/**/*.ts", ["ts", "bundle-dev", "tslint"]);
     gulp.watch("./src/styles/**/*.scss", ["styles-dev"]);
     gulp.watch("./src/**/*.{html,json}", ["copyStatic"]);
     // startserver already watched for the server file

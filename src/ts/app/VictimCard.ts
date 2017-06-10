@@ -1,8 +1,8 @@
 /// <reference path="../lib/victim.d.ts" />
-import * as $ from "jquery";
 import { Promise } from "es6-promise";
+import * as $ from "jquery";
 
-let eventToTitle: { [key: string]: string } = {
+const eventToTitle: { [key: string]: string } = {
     "Armenia": "the Armenian Genocide",
     "Holocaust": "the Holocaust",
     "Syria": "the Syrian Civil War",
@@ -11,14 +11,24 @@ let eventToTitle: { [key: string]: string } = {
     "Rwanda": "the Rwandan Genocide",
     "Bosnia": "the Bosnian Genocide",
     "Kosovo": "the Kosovo War",
-    "Darfur": "the Darfur Genocide"
+    "Darfur": "the Darfur Genocide",
 };
 
 export default class VictimCard {
     protected victim: Victim|null;
     protected memorial: JQuery;
+
+    constructor(public memorialContainer: JQuery) {
+        this.memorial = $("<div>", { id: "memorial" });
+        // this.memorial.append(name, years, event, details);
+        this.memorialContainer.append(this.memorial);
+        $(window).on("resize", () => {
+            this.verticallyCenter(this.memorial, this.memorialContainer);
+        });
+    }
+
     public updateCard: (victim: Victim) => JQuery = (victim: Victim) => {
-            let container = $("<div></div>");
+            const container = $("<div></div>");
             container.append($("<div class='name'>" + victim.name + "</div>"));
             let text = "Perished ";
             text += " in ";
@@ -38,15 +48,6 @@ export default class VictimCard {
             container.append($("<div class='description'>" + text + "</div>"));
             return container;
         }
-
-    constructor(public memorialContainer: JQuery) {
-        this.memorial = $("<div>", { id: "memorial" });
-        // this.memorial.append(name, years, event, details);
-        this.memorialContainer.append(this.memorial);
-        $(window).on('resize', () => {
-            this.verticallyCenter(this.memorial, this.memorialContainer);
-        });
-    };
 
     public fadeOut(fadeOutTime: number): Promise<void> {
         return this.fadeTo(0, fadeOutTime);
@@ -73,15 +74,14 @@ export default class VictimCard {
     }
 
     public verticallyCenter(inner: JQuery, container: JQuery): void  {
-        let inHeight = inner.outerHeight();
-        let conHeight = container.outerHeight();
-        inner.css('margin-top', ((conHeight-inHeight)/2)+'px');
+        const inHeight = inner.outerHeight();
+        const conHeight = container.outerHeight();
+        inner.css("margin-top", ((conHeight - inHeight) / 2) + "px");
     }
 
     protected updateMemorial(victim: Victim): void {
         this.memorial.empty();
         this.memorial.append(this.updateCard(victim));
-
         this.verticallyCenter(this.memorial, this.memorialContainer);
     }
-};
+}

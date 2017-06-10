@@ -6,11 +6,11 @@ const envVarConfigPrefix = "CONFIG_";
 ///// Note: the front-end's configuration is a subset of the back-end's.
 /////    To make available on the front end, update ts/configuration.ts
 interface AppConfRequired {
-    fadeInTime: number,
-    fadeOutTime: number,
-    duration: number,
-    maxQueueSize: number,
-    batchSize: number
+    fadeInTime: number;
+    fadeOutTime: number;
+    duration: number;
+    maxQueueSize: number;
+    batchSize: number;
 }
 
 const confDefaults: AppConfRequired = {
@@ -18,8 +18,8 @@ const confDefaults: AppConfRequired = {
     fadeOutTime: 0,
     duration: 1000,
     maxQueueSize: 1000,
-    batchSize: 100
-}
+    batchSize: 100,
+};
 
 interface AppConfOptional {
 
@@ -37,27 +37,28 @@ function deriveProperties(conf: AppConfRequired & AppConfOptional): AppConfigura
 
 function camelCaseToSnakeCase(str: string): string {
     return str.replace(/([A-Z])/g, (ch) => "_" + ch.toLowerCase());
-};
+}
 
 function overrideWithEnvironmentVariables(config: AppConfiguration, environment: any): AppConfiguration {
     if (_.isObject(environment)) {
-        config = _.mapValues(config, function (val: any, key: string) {
-            let envKey = envVarConfigPrefix + camelCaseToSnakeCase(key).toUpperCase();
+        const envVals = _.mapValues(config, (original: any, key: string) => {
+            const envKey = envVarConfigPrefix + camelCaseToSnakeCase(key).toUpperCase();
             if (_.has(environment, envKey)) {
-                if (_.isNumber(val)) {
+                if (_.isNumber(original)) {
                     return _.toNumber(environment[envKey]);
                 }
                 return environment[envKey];
             } else {
-                return val;
+                return original;
             }
         });
+        config = _.extend(config, envVals);
     }
     return config;
 }
 
 function getConfig(pathName: string, environment: any): AppConfiguration {
-    let config: Object = ConfReader.configFromFile(pathName);
+    const config = ConfReader.configFromFile(pathName);
     return deriveProperties(overrideWithEnvironmentVariables(_.defaults(config, confDefaults), environment));
 }
 

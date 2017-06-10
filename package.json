@@ -36,16 +36,18 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "event-stream": "^3.3.4",
+    "gulp-tslint": "^8.1.1",
     "mocha": "^3.1.2",
     "sinon": "^1.17.6",
-    "ts-loader": "^1.0.0"
+    "ts-loader": "^1.0.0",
+    "tslint": "^5.4.3"
   },
   "dependencies": {
     "@types/chai": "^3.4.34",
     "@types/es6-promise": "0.0.32",
     "@types/handlebars": "^4.0.32",
     "@types/jquery": "^2.0.40",
-    "@types/lodash": "^4.14.40",
+    "@types/lodash": "^4.14.65",
     "@types/mocha": "^2.2.33",
     "@types/mongodb": "^2.1.37",
     "@types/sinon": "^1.16.32",
@@ -68,7 +70,7 @@
     "ts-node": "^1.7.0",
     "tsify": "^2.0.3",
     "typedoc": "^0.5.5",
-    "typescript": "^2.1.1",
+    "typescript": "^2.3.4",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   }

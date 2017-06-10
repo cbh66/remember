@@ -28,7 +28,7 @@ export default class Queue<T> {
 
     // Returns true if the queue is empty, and false otherwise.
     public isEmpty(): boolean {
-        return (this.queue.length == 0);
+        return (this.queue.length === 0);
     }
 
     /** Enqueues the specified item. The parameter is:
@@ -44,14 +44,16 @@ export default class Queue<T> {
      */
     public dequeue(): T | undefined {
         // if the queue is empty, return immediately
-        if (this.queue.length == 0) return undefined;
+        if (this.queue.length === 0) {
+            return undefined;
+        }
 
         // store the item at the front of the queue
-        var item: T = this.queue[this.offset];
+        const item: T = this.queue[this.offset];
 
         // increment the offset and remove the free space if necessary
         // TODO: maybe don't do this as frequently?
-        if (++ this.offset * 2 >= this.queue.length){
+        if (++this.offset * 2 >= this.queue.length) {
             this.queue  = this.queue.slice(this.offset);
             this.offset = 0;
         }
@@ -74,7 +76,9 @@ export default class Queue<T> {
      * @param {number} amount
      */
     public toArray(amount?: number): T[] {
-        if (amount === 0) return [];
+        if (amount === 0) {
+            return [];
+        }
         if (amount) {
             amount = Math.min(amount, this.getLength());
         } else {
