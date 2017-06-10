@@ -6,9 +6,6 @@
 	 "no-consecutive-blank-lines": [true, 2],
     	 "no-console": false,
 	 "no-empty-interface": false,
-	 "no-internal-module": false,
-	 "no-namespace": false,
-	 "no-reference": false,
 	 "object-literal-sort-keys": false,
 	 "quotemark": [true, "double", "avoid-escape"]
     } 

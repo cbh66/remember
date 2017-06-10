@@ -1,4 +1,4 @@
-interface Victim {
+export interface Victim {
     name: string;
     scheduledTime: Date;
     event: string;
@@ -6,3 +6,5 @@ interface Victim {
     deathYear?: number;
     details?: string;
 }
+
+export default Victim;

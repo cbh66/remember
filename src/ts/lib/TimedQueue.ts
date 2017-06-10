@@ -35,9 +35,9 @@ class TimedQueue<T> {
     /**
      * The function called when an object's time is up.  It is passed the
      * object; any return value is ignored.
-     * @type {TimedQueue.CallbackType<T>}
+     * @type {CallbackType<T>}
      */
-    protected callback: TimedQueue.CallbackType<T>;
+    protected callback: CallbackType<T>;
     /**
      * Not yet used; may eventually indicate a frequency to check the current
      * time if the next object in the queue isn't due for a while.
@@ -49,7 +49,7 @@ class TimedQueue<T> {
      * @constructor
      * @param {TimedQueue.Options<T>?} opts
      */
-    public constructor(opts?: TimedQueue.Options<T>) {
+    public constructor(opts?: TimedQueueOptions<T>) {
         this.setOptions(opts || {});
     }
 
@@ -57,9 +57,9 @@ class TimedQueue<T> {
      * Sets values for the class; sets others to defaults.
      * TODO: maybe only the constructor should set defaults?  Otherwise you
      *   might try to overwrite just one value but see others reset.
-     * @param {TimedQueue.Options<T>} opts Options to set.
+     * @param {TimedQueueOptions<T>} opts Options to set.
      */
-    public setOptions(opts: TimedQueue.Options<T>): void {
+    public setOptions(opts: TimedQueueOptions<T>): void {
         this.callback = opts.callback || ((x: T) => { /* noop */ });
         this.updateFrequency = opts.updateFrequency || 1000;
     }
@@ -69,12 +69,12 @@ class TimedQueue<T> {
      *   time must be later than any other time in the queue.
      * @param {T}    object        The object to add.
      * @param {Date} scheduledTime The time at which it should be processed.
-     * @throws {TimedQueue.OutOfOrderDateError} Throws an error if this object
+     * @throws {OutOfOrderDateError} Throws an error if this object
      *   is scheduled for an earlier time than the latest item in the queue.
      */
     public addLatest(object: T, scheduledTime: Date): void {
         if (this.latestTime && scheduledTime < this.latestTime) {
-            throw new TimedQueue.OutOfOrderDateError("Date " + scheduledTime +
+            throw new OutOfOrderDateError("Date " + scheduledTime +
                     " is earlier than prior added date " + this.latestTime);
         }
         this.queue.enqueue([scheduledTime, object]);
@@ -147,30 +147,28 @@ class TimedQueue<T> {
     }
 }
 
-// TODO: better way to organize these types...?
-module TimedQueue {
-    /**
-     * An error thrown when dates are inserted out of order.
-     */
-    export class OutOfOrderDateError extends RangeError {
-        public name = "OutOfOrderDateError";
-        constructor(public message: string) {
-            super(message);
-            this.message = this.name + ": " + message;
-        }
-    }
-    /**
-     * A type for callbacks that can process T objects.
-     */
-    export type CallbackType<T> = (object: T) => void;
+/**
+ * A type for callbacks that can process T objects.
+ */
+type CallbackType<T> = (object: T) => void;
 
-    /**
-     * Options that can be specified for a TimedQueue.
-     */
-    export interface Options<T> {
-        callback?: TimedQueue.CallbackType<T>;
-        updateFrequency?: number;      // In milliseconds, I would think
+/**
+ * An error thrown when dates are inserted out of order.
+ */
+export class OutOfOrderDateError extends RangeError {
+    public name = "OutOfOrderDateError";
+    constructor(public message: string) {
+        super(message);
+        this.message = this.name + ": " + message;
     }
+}
+
+/**
+ * Options that can be specified for a TimedQueue.
+ */
+export interface TimedQueueOptions<T> {
+    callback?: CallbackType<T>;
+    updateFrequency?: number;      // In milliseconds, I would think
 }
 
 

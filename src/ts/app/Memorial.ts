@@ -1,8 +1,8 @@
-/// <reference path="../lib/victim.d.ts" />
 import { Promise } from "es6-promise";
 import * as $ from "jquery";
 import * as _ from "lodash";
 import TimedQueue from "../lib/TimedQueue";
+import Victim from "../lib/Victim";
 import { AppConfiguration } from "./configuration";
 import VictimCard from "./VictimCard";
 

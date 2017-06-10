@@ -1,9 +1,9 @@
-/// <reference path="../lib/victim.d.ts" />
 import * as express from "express";
 import * as _ from "lodash";
 import * as mongo from "mongodb";
 import * as path from "path";
 import TimedQueue from "../lib/TimedQueue";
+import Victim from "../lib/Victim";
 import getConfig from "./configuration";
 const MongoClient = mongo.MongoClient;
 const app = express();
@@ -27,25 +27,25 @@ function addSeconds(date: Date, seconds: number): Date {
 //     "Kosovo": 138,
 //     "Darfur": 2,
 // };
-// const eventProportions = {
-//     "Syria": 220,
-//     "Armenia": 40,
-//     "Bosnia": 130,
-//     "Cambodia": 20,
-//     "Darfur": 5,
-//     "Holocaust": 220,
-//     "Kosovo": 130,
-//     "Rwanda": 130,
-//     "South Sudan Civil War": 40,
-//     "Sand Creek Massacre of Native Americans": 4,
-//     "Argentine Dirty War": 50,
-//     "Bangladesh Genocide": 3,
-//     "East Timor Genocide": 8,
-// };
 const eventProportions = {
-    "Natural Causes": 3,
-    "Duel": 1
+    "Syria": 220,
+    "Armenia": 40,
+    "Bosnia": 130,
+    "Cambodia": 20,
+    "Darfur": 5,
+    "Holocaust": 220,
+    "Kosovo": 130,
+    "Rwanda": 130,
+    "South Sudan Civil War": 40,
+    "Sand Creek Massacre of Native Americans": 4,
+    "Argentine Dirty War": 50,
+    "Bangladesh Genocide": 3,
+    "East Timor Genocide": 8,
 };
+// const eventProportions = {
+//     "Natural Causes": 3,
+//     "Duel": 1,
+// };
 function proportionPercents() {
     const sum = _.reduce(eventProportions, (soFar, val) => soFar + val, 0);
     return _.mapValues(eventProportions, (num: number) => num / sum);
