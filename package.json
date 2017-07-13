@@ -15,7 +15,7 @@
     "clean": "rm -rf *~ hydrate.js npm-debug.log build/ docs/ mongo/"
   },
   "engines": {
-    "node": "6.9.1"
+    "node": "6.11.1"
   },
   "repository": {
     "type": "git",
