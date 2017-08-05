@@ -114,7 +114,6 @@ describe('TimedQueue', function () {
 
         it('should decrease with time', function () {
             let timesToTest = 100;
-            let spy = sinon.spy();
             let testQueue = new TimedQueue<number>();
             _.times(timesToTest, function (i: number) {
                 testQueue.addLatest(i, millisecondsFrom(i+1, new Date()));
@@ -185,7 +184,7 @@ describe('TimedQueue', function () {
                     let time = millisecondsFrom(num, new Date());
                     testQueue.addLatest(num, time);
                 });
-                clock.tick(_.last(timeList));
+                clock.tick(_.last(timeList) || 0);
                 expect(testQueue.getLatestScheduledTime()).to.not.exist;
             });
         });
