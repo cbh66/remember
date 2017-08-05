@@ -3,6 +3,7 @@ import * as express from "express";
 import * as mongo from "mongodb";
 import * as path from "path";
 import * as _ from "lodash";
+import { Promise } from "es6-promise";
 import getConfig from "./configuration";
 import TimedQueue from "../lib/TimedQueue";
 var MongoClient = mongo.MongoClient;
@@ -95,7 +96,7 @@ function getNamesFromDb(names: mongo.Collection, quantity: number): Promise<Vict
 }
 
 function valuesFromCache<T>(arr: [Date, T][], after: Date, qty: number): T[] {
-    const index = _.sortedIndexBy<[Date, T]>(arr, [after, null], item => item[0]);
+    const index = _.sortedIndexBy<[Date, T|null]>(arr, [after, null], item => item[0]);
     return _.map(arr.slice(index, index + qty), item => item[1]);
 }
 
@@ -104,7 +105,7 @@ function setupAppWithDb(db: mongo.Db) {
     let cachedSchedule = new TimedQueue<Victim>();
     app.set('port', (process.env.PORT || 5000));
 
-    function retrieveValues(after: Date, quantity: number): Promise<Victim> {
+    function retrieveValues(after: Date, quantity: number): Promise<Victim[]> {
         const cachedValues = valuesFromCache(cachedSchedule.toArray(), after, quantity);
         const amountRemaining = quantity - cachedValues.length;
         return new Promise((resolve, reject) => {
@@ -125,11 +126,13 @@ function setupAppWithDb(db: mongo.Db) {
                             scheduledTime: addSeconds(baseTime, (index+1) * config.duration/1000)
                         });
                     });
-                    _.each(docs, doc => cachedSchedule.addLatest(doc, doc.scheduledTime));
-                    resolve([
+                    _.each(extendedDocs, doc => cachedSchedule.addLatest(doc, doc.scheduledTime));
+                    const answer = [
                         ...cachedValues,
-                        ..._.take(docs, amountRemaining)
-                    ]);
+                        ..._.take(extendedDocs, amountRemaining)
+                    ];
+                    resolve(answer);
+                    console.log("Resolving with " + answer.length);
                     console.log("MISS!", "after", cachedSchedule.length());
                 });
             } else { // cache hit
@@ -189,14 +192,14 @@ function setupAppWithDb(db: mongo.Db) {
     app.get('/api/schedule', function(request, response) {
         let params = request.query;
         let quantity: number = +(params.next);
-        let after: Date;
+        let after: Date|null = null;
         if (params.after) {
             after = new Date(params.after);
         }
         if (!after || !_.isFinite(after.getTime())) {
             after = new Date();
         }
-        let before: Date;
+        let before: Date|null = null;
         if (params.before) {
             before = new Date(params.before);
             quantity = (before.getTime() - after.getTime()) / (config.duration);

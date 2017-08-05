@@ -75,8 +75,9 @@ export default class Memorial {
 
     private addNewVictims(victims: Victim[]) {
         _.each(victims, (victim) => {
-            const fadeOutPrev = new Date(victim.scheduledTime.getTime() - this.config.fadeOutTime)
-            if (victim.scheduledTime > this.actionQueue.getLatestScheduledTime()) {
+            const fadeOutPrev = new Date(victim.scheduledTime.getTime() - this.config.fadeOutTime);
+            const latestTime = this.actionQueue.getLatestScheduledTime() || new Date();
+            if (victim.scheduledTime > latestTime) {
                 this.actionQueue.addLatest({
                     type: ActionType.fadeOut
                 }, fadeOutPrev);
